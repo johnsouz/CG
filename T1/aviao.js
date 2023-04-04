@@ -1,107 +1,147 @@
-import * as THREE from  'three';
-import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
-import {initRenderer,
-        initCamera,
-        initDefaultBasicLight,
-        setDefaultMaterial,
-        InfoBox,
-        onWindowResize,
-        createGroundPlaneXZ} from "../libs/util/util.js";
+import * as THREE from 'three';
+import {
+  initRenderer,
+  initCamera,
+  initDefaultBasicLight,
+  setDefaultMaterial,
+  InfoBox,
+  onWindowResize,
+  createGroundPlaneXZ
+} from "../libs/util/util.js";
 
-let scene, renderer, camera, light, orbit; // Initial variables
-scene = new THREE.Scene();    // Create main scene
-renderer = initRenderer();    // Init a basic renderer
-camera = initCamera(new THREE.Vector3(0, 15, 30)); // Init camera in this position
-// create a basic material
-light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
-orbit = new OrbitControls( camera, renderer.domElement ); // Enable mouse rotation, pan, zoom etc.
+import { Sky } from '../assets/shaders/Sky.js';
+import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
+
+const DEBUF_INFO = false;
+import { createGround, createAirplane } from 'meshGenerator.js';
+
+let scene = new THREE.Scene();    // Create main scene
+scene.fog = new THREE.Fog(0xffffff, 800, 1000)
+
+let renderer = initRenderer();    // Init a basic renderer
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.5;
+
+let camera = initCamera(new THREE.Vector3(0, 0, 50)); // Init camera in this position
+let light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
+
+// https://threejs.org/examples/webgl_shaders_sky.html
+let sky = new Sky();
+sky.scale.setScalar(1000);
+scene.add(sky);
+sky.material.uniforms['sunPosition'].value.setFromSphericalCoords(1, 0.4 * Math.PI, 0);
+
+scene.add(new THREE.AxesHelper(50))
+
+class PlaneController {
+
+  p = document.querySelector('#coords');
+
+  /**
+   * @param {Element} viewport 
+   * @param {THREE.Mesh} plane 
+   */
+  constructor(plane, viewport) {
+    this.plane = plane;
+    this.viewport = viewport;
+    this.origin = new THREE.Vector3(viewport.clientWidth / 2, viewport.clientHeight / 2);
+    this.mousePos = new THREE.Vector3();
+    this.mouseDelta = new THREE.Vector3();
+    this.__upNormal = new THREE.Vector3(0, 1, 0);
+    this.mouseDeltaAbs = new THREE.Vector3();
+
+    window.addEventListener('mousemove', e => this.__mousemoveCallback(e));
+    window.addEventListener('resize', e => this.__resizeCallback(e));
+  }
+
+  /** @param {MouseEvent} e */
+  __mousemoveCallback(e) {
+    this.mousePos
+      .set(e.x, e.y);
+
+    this.mouseDelta
+      .subVectors(this.mousePos, this.origin)
+      .y *= -1;
+
+    this.mouseDeltaAbs
+      .set(this.mouseDelta.x / this.origin.x, this.mouseDelta.y / this.origin.y);
+
+    if (DEBUF_INFO)
+      this.p.textContent = `Origin = [${this.origin.x}, ${this.origin.y}]
+DeltaPx = [${this.mouseDelta.x}, ${this.mouseDelta.y}]
+DeltaAbs = [${this.mouseDeltaAbs.x.toFixed(3)}, ${this.mouseDeltaAbs.y.toFixed(3)}]`;
+
+    this.plane.position
+      .copy(this.mouseDelta)
+      .divideScalar(20);
+    this.plane.rotation
+      .y = Math.PI / 8 * this.mouseDelta.x / this.origin.x
+  }
+
+  /** @param {MouseEvent} e */
+  __resizeCallback(e) {
+    this.origin
+      .set(this.viewport.clientWidth / 2, this.viewport.clientHeight / 2);
+  }
+
+  dispose() {
+    window.removeEventListener('mousemove', this.__mousemoveCallback);
+    window.removeEventListener('resize', this.__resizeCallback);
+  }
+}
 
 // Listen window size changes
-window.addEventListener( 'resize', function(){onWindowResize(camera, renderer)}, false );
+window.addEventListener('resize', () => {
+  onWindowResize(camera, renderer)
+}, false);
 
-// criando o tronco
-const geometry = new THREE.CylinderGeometry( 2, 1.2, 25, 32 );
-let material1 = new THREE.MeshPhysicalMaterial({
-    color: "yellow",})
-const tronco = new THREE.Mesh( geometry, material1 );
-tronco.rotateX(Math.PI/2);
-scene.add( tronco );
+let plane = createAirplane();
+scene.add(plane);
 
-// criando ponta traseira
-const geometry6 = new THREE.SphereGeometry( 1.2, 32, 16 );
-const ponta = new THREE.Mesh( geometry6, material1 );
-ponta.position.set(0, -12.5, 0);
-ponta.scale.set(1, 1.3, 1);
-tronco.add( ponta );
-
-// criando estabilizadores
-let material = new THREE.MeshPhysicalMaterial({
-  color: "red",})
-const estabH = new THREE.Mesh( geometry6, material );
-estabH.position.set(0, -12.5, 0);
-estabH.scale.set(6, 1, .1);
-tronco.add( estabH );
-
-const estabV = new THREE.Mesh( geometry6, material );
-estabV.position.set(0, -12.5, -1.6);
-estabV.scale.set(.2, 1, 3);
-tronco.add( estabV );
-
-// criando o visor
-const geometry2 = new THREE.SphereGeometry( 1, 32, 16 );
-let material2 = new THREE.MeshPhysicalMaterial({
-color: "blue",
-transparent: true,
-opacity: 0.7,
-})
-const visor = new THREE.Mesh( geometry2, material2 );
-visor.scale.set(1, 2.4, 1);
-visor.position.set(0, 3, -1.6);
-tronco.add( visor );
-
-// criando as asas
-const geometry3 = new THREE.CylinderGeometry( 2, 2, 30, 32 );
-let material3 = new THREE.MeshPhysicalMaterial({
-color: "red"})
-const cylinder = new THREE.Mesh( geometry3, material3 );
-cylinder.rotateZ(Math.PI/2);
-cylinder.position.set(0, 4, 0);
-cylinder.scale.set(1, 1, 0.4);
-tronco.add( cylinder );
-
-// criando a haste da hélice
-const geometry4 = new THREE.CylinderGeometry( .2, .2, 3, 32 );
-const cylinder2 = new THREE.Mesh( geometry4, material );
-cylinder2.rotateY(Math.PI/2);
-cylinder2.position.set(0, 12.5, 0);
-tronco.add( cylinder2 );
+new PlaneController(plane, renderer.domElement);
+new OrbitControls(camera, renderer.domElement);
 
 
-// criando a hélice
-const geometry5 = new THREE.CylinderGeometry( 2.2, 2.2, .4, 32 );
-let material6 = new THREE.MeshPhysicalMaterial({
-    color: "white",
-    transparent: true,
-    opacity: 0.5,})
-const cylinder3 = new THREE.Mesh( geometry5, material6 );
-cylinder3.rotateY(Math.PI/2);
-cylinder3.position.set(0, 13.75, 0);
-tronco.add( cylinder3 );
+let randInt = (min, max) =>
+  Math.random() * (max - min) + min;
 
+class ZTranslater {
+  constructor(from, to = 0) {
+    this.from = from;
+    this.to = to;
+    this.mesh = new THREE.Mesh(
+      new THREE.SphereGeometry(10, 10),
+      new THREE.MeshPhysicalMaterial({
+        color: 'red',
+        opacity: 0.6,
+        transparent: true
+      }))
+    this.mesh.position
+      .set(randInt(-200, 200), -25, randInt(to, from))
+  }
 
-// Use this to show information onscreen
-let controls = new InfoBox();
-  controls.add("Basic Scene");
-  controls.addParagraph();
-  controls.add("Use mouse to interact:");
-  controls.add("* Left button to rotate");
-  controls.add("* Right button to translate (pan)");
-  controls.add("* Scroll to zoom in/out.");
-  controls.show();
+  update() {
+    let pos = this.mesh.position;
+    pos.z += 5;
+    if (pos.z >= this.to) {
+      pos.z = this.from;
+      pos.x = randInt(-200, 200);
+    }
+  }
+}
+
+/** @type {ZTranslater[]} */
+let arveres = []
+let numArveres = 50;
+for (let i = 0; i <= numArveres; ++i)
+  arveres.push(new ZTranslater(-randInt(900, 1000)));
+
+scene.add(createGround(), ...arveres.map(a => a.mesh));
 
 render();
-function render()
-{
+function render() {
   requestAnimationFrame(render);
+  arveres.forEach(arvere => arvere.update());
   renderer.render(scene, camera) // Render scene
 }
