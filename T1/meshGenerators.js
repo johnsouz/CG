@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 export function createAirplane() {
     const geometry = new THREE.CylinderGeometry(2, 1.2, 25, 32);
     let material1 = new THREE.MeshPhysicalMaterial({
@@ -75,6 +77,34 @@ export function createAirplane() {
 
     return tronco.rotateZ(Math.PI);
 }
+
+export function createTree() {
+    const geometry = new THREE.CylinderGeometry(2, 2, 20, 32);
+    let material1 = new THREE.MeshPhysicalMaterial({
+      color: "chocolate",
+    })
+    const madeira = new THREE.Mesh(geometry, material1);
+  
+    const geometry6 = new THREE.SphereGeometry(4, 32, 16);
+    let material2 = new THREE.MeshPhysicalMaterial({
+      color: "green",
+    })
+    const folhas = new THREE.Mesh(geometry6, material2);
+    folhas.position.set(0, 8, 0);
+    folhas.scale.set(.8, .8, .8);
+    madeira.add(folhas);
+  
+    const folhas2 = new THREE.Mesh(geometry6, material2);
+    folhas2.position.set(0, 5, -2);
+    folhas2.scale.set(.9, .9, .9);
+    madeira.add(folhas2);
+  
+    const folhas3 = new THREE.Mesh(geometry6, material2);
+    folhas3.position.set(-1, 4, 2);
+    madeira.add(folhas3);
+
+    return madeira;
+  }
 
 export function createGround() {
     let mesh = new THREE.Mesh(

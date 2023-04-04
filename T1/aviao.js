@@ -13,17 +13,20 @@ import { Sky } from '../assets/shaders/Sky.js';
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 
 const DEBUF_INFO = false;
-import { createGround, createAirplane } from 'meshGenerator.js';
+import { createGround, createAirplane, createTree } from './meshGenerators.js';
 
-let scene = new THREE.Scene();    // Create main scene
+// Create main scene
+let scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0xffffff, 800, 1000)
 
-let renderer = initRenderer();    // Init a basic renderer
+// Init a basic renderer
+let renderer = initRenderer();
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.5;
 
 let camera = initCamera(new THREE.Vector3(0, 0, 50)); // Init camera in this position
+camera.lookAt(0,0,-250);
 let light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
 
 // https://threejs.org/examples/webgl_shaders_sky.html
@@ -32,7 +35,7 @@ sky.scale.setScalar(1000);
 scene.add(sky);
 sky.material.uniforms['sunPosition'].value.setFromSphericalCoords(1, 0.4 * Math.PI, 0);
 
-scene.add(new THREE.AxesHelper(50))
+// scene.add(new THREE.AxesHelper(50))
 
 class PlaneController {
 
@@ -40,7 +43,7 @@ class PlaneController {
 
   /**
    * @param {Element} viewport 
-   * @param {THREE.Mesh} plane 
+   * @param {THREE.Object3D} plane 
    */
   constructor(plane, viewport) {
     this.plane = plane;
@@ -100,30 +103,37 @@ let plane = createAirplane();
 scene.add(plane);
 
 new PlaneController(plane, renderer.domElement);
-new OrbitControls(camera, renderer.domElement);
-
+if (DEBUF_INFO)
+  new OrbitControls(camera, renderer.domElement);
 
 let randInt = (min, max) =>
   Math.random() * (max - min) + min;
 
 class ZTranslater {
-  constructor(from, to = 0) {
+  /**
+   * 
+   * @param {number} from Posição inicial do objeto (No eixo Z)
+   * @param {number} to Posição final do objeto (No eixo Z)
+   * @param {number} speed Número de unidades somada a coordenada Z a cada chamada de {@link ZTranslater.update}
+   */
+  constructor(from, to = 0, speed = 1) {
     this.from = from;
     this.to = to;
-    this.mesh = new THREE.Mesh(
-      new THREE.SphereGeometry(10, 10),
-      new THREE.MeshPhysicalMaterial({
-        color: 'red',
-        opacity: 0.6,
-        transparent: true
-      }))
+    this.speed = speed;
+    this.mesh = createTree();
+    
+    // inicializa as posições e rotações com valores aleatorios dentro do dominio
     this.mesh.position
-      .set(randInt(-200, 200), -25, randInt(to, from))
+      .set(randInt(-300, 300), -25, randInt(to, from));
+    this.mesh.rotation.y = Math.PI * Math.random();
   }
-
+  /** 
+   * - Avança {@link ZTranslater.speed } unidades no eixo Z
+   * - Contem a coordenada entre {@link ZTranslater.from } e {@link ZTranslater.to }
+   * - Caso ultrapasse {@link ZTranslater.to } volte a {@link ZTranslater.from } */
   update() {
     let pos = this.mesh.position;
-    pos.z += 5;
+    pos.z += 1;
     if (pos.z >= this.to) {
       pos.z = this.from;
       pos.x = randInt(-200, 200);
@@ -133,8 +143,9 @@ class ZTranslater {
 
 /** @type {ZTranslater[]} */
 let arveres = []
-let numArveres = 50;
+let numArveres = 200;
 for (let i = 0; i <= numArveres; ++i)
+  // Considerar THREE.InstancedMesh
   arveres.push(new ZTranslater(-randInt(900, 1000)));
 
 scene.add(createGround(), ...arveres.map(a => a.mesh));
