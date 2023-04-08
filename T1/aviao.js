@@ -70,17 +70,12 @@ class PlaneController {
 
     this.mouseDeltaAbs
       .set(this.mouseDelta.x / this.origin.x, this.mouseDelta.y / this.origin.y);
-
+    
     if (DEBUF_INFO)
-      this.p.textContent = `Origin = [${this.origin.x}, ${this.origin.y}]
-DeltaPx = [${this.mouseDelta.x}, ${this.mouseDelta.y}]
-DeltaAbs = [${this.mouseDeltaAbs.x.toFixed(3)}, ${this.mouseDeltaAbs.y.toFixed(3)}]`;
-
-    this.plane.position
-      .copy(this.mouseDelta)
-      .divideScalar(20);
-    this.plane.rotation
-      .y = Math.PI / 8 * this.mouseDelta.x / this.origin.x
+      this.p.textContent =
+        `origin = [${this.origin.x}, ${this.origin.y}]\n` +
+        `mouseDelta = [${this.mouseDelta.x}, ${this.mouseDelta.y}, ${this.mouseDelta.z}]\n` +
+        `mouseDeltaAbs = [${this.mouseDeltaAbs.x.toFixed(3)}, ${this.mouseDeltaAbs.y.toFixed(3)}]\n`;
   }
 
   /** @param {MouseEvent} e */
@@ -88,6 +83,16 @@ DeltaAbs = [${this.mouseDeltaAbs.x.toFixed(3)}, ${this.mouseDeltaAbs.y.toFixed(3
     this.origin
       .set(this.viewport.clientWidth / 2, this.viewport.clientHeight / 2);
   }
+
+  /**
+   * @param {number} dt deltaTime
+   */
+  update(dt) {
+    this.plane.position.lerp(this.mouseDelta.clone().divideScalar(20), 0.15);
+    
+    this.plane.rotation
+      .z = MathUtils.lerp(this.plane.rotation.y, MathUtils.DEG2RAD * 270 * this.mouseDeltaAbs.x, 0.15);
+    }
 
   dispose() {
     window.removeEventListener('mousemove', this.__mousemoveCallback);
@@ -103,7 +108,7 @@ window.addEventListener('resize', () => {
 let plane = createAirplane();
 scene.add(plane);
 
-new PlaneController(plane, renderer.domElement);
+let planeController = new PlaneController(plane, renderer.domElement);
 if (DEBUF_INFO)
   new OrbitControls(camera, renderer.domElement);
 
@@ -146,12 +151,12 @@ class ZTranslater {
     pos.z += this.speed;
     if (pos.z >= this.to)
       pos.z = this.from;
-    
+
     let opacity = MathUtils.mapLinear(pos.z, -950, -800, 0, 1)
     this.mesh.traverse(obj => {
       if (obj.isMesh || obj.isLine)
         obj.material.opacity = opacity;
-    });   
+    });
   }
 }
 
@@ -162,7 +167,7 @@ let translaters = []
 
 let numGroundPlanes = 10;
 for (let i = 0; i <= numGroundPlanes; ++i) {
-  let ground = new ZTranslater(-numGroundPlanes*100, 100, 1, createGround(100, 100))
+  let ground = new ZTranslater(-numGroundPlanes * 100, 100, 1, createGround(100, 100))
   ground.mesh.position.z -= 100 * i;
   translaters.push(ground);
 }
@@ -173,9 +178,14 @@ for (let i = 0; i <= numArveres; ++i)
 
 scene.add(...translaters.map(a => a.mesh));
 
-render();
 function render() {
   requestAnimationFrame(render);
-  translaters.forEach(obj => obj.update());
+  let dt = clock.getDelta();
+  translaters.forEach(obj => obj.update(dt));
+  planeController.update(dt)
+  
   renderer.render(scene, camera) // Render scene
 }
+
+let clock = new THREE.Clock();
+render();

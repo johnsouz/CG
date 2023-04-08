@@ -79,7 +79,10 @@ export function createAirplane() {
 
     // tronco.add(new THREE.AxesHelper(10));
 
-    return tronco.rotateZ(Math.PI);
+    let holder = new THREE.Object3D();
+    holder.add(tronco.rotateZ(Math.PI));
+
+    return holder;
 }
 
 export function createTree() {
