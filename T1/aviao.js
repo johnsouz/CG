@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { MathUtils } from 'three';
+
 import {
   initRenderer,
   initCamera,
@@ -108,15 +110,6 @@ if (DEBUF_INFO)
 let randInt = (min, max) =>
   Math.random() * (max - min) + min;
 
-function lerp(x0, y0, x1, y1, x) {
-  if (x <= x0)
-    return y0;
-  else if (x >= x1)
-    return y1;
-  else
-    return (y1 - y0) / (x1 - x0) * (x - x0) + y0;
-}
-
 class ZTranslater {
   /**
    * @param {number} from Posição inicial do objeto (No eixo Z)
@@ -154,7 +147,7 @@ class ZTranslater {
     if (pos.z >= this.to)
       pos.z = this.from;
     
-    let opacity = lerp(-950, 0, -800, 1, pos.z);
+    let opacity = MathUtils.mapLinear(pos.z, -950, -800, 0, 1)
     this.mesh.traverse(obj => {
       if (obj.isMesh || obj.isLine)
         obj.material.opacity = opacity;
