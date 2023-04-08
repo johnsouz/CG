@@ -116,6 +116,6 @@ export function createGround() {
         }));
 
     mesh.rotation.set(Math.PI / 2, 0, 0);
-    mesh.position.set(0, -25, -500);
+    mesh.position.set(0, -50, -500);
     return mesh;
 }

@@ -12,7 +12,7 @@ import {
 import { Sky } from '../assets/shaders/Sky.js';
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 
-const DEBUF_INFO = false;
+const DEBUF_INFO = true;
 import { createGround, createAirplane, createTree } from './meshGenerators.js';
 
 // Create main scene
@@ -26,7 +26,7 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.5;
 
 let camera = initCamera(new THREE.Vector3(0, 0, 50)); // Init camera in this position
-camera.lookAt(0,0,-250);
+camera.lookAt(0, 0, -250);
 let light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
 
 // https://threejs.org/examples/webgl_shaders_sky.html
@@ -120,33 +120,33 @@ class ZTranslater {
     this.from = from;
     this.to = to;
     this.speed = speed;
-    this.mesh = createTree();
-    
-    // inicializa as posições e rotações com valores aleatorios dentro do dominio
+    this.mesh = createTree()
+
+    // inicializa as posições, escalas e rotações com valores aleatorios dentro do dominio
     this.mesh.position
-      .set(randInt(-300, 300), -25, randInt(to, from));
+      .set(randInt(-250, 250), -40, randInt(to, from));
     this.mesh.rotation.y = Math.PI * Math.random();
+    this.mesh.scale.setScalar(randInt(6, 10) / 10);
   }
+
   /** 
    * - Avança {@link ZTranslater.speed } unidades no eixo Z
    * - Contem a coordenada entre {@link ZTranslater.from } e {@link ZTranslater.to }
    * - Caso ultrapasse {@link ZTranslater.to } volte a {@link ZTranslater.from } */
   update() {
     let pos = this.mesh.position;
-    pos.z += 1;
-    if (pos.z >= this.to) {
+    pos.z += this.speed;
+    if (pos.z >= this.to)
       pos.z = this.from;
-      pos.x = randInt(-200, 200);
-    }
   }
 }
 
 /** @type {ZTranslater[]} */
 let arveres = []
-let numArveres = 200;
+let numArveres = 300;
 for (let i = 0; i <= numArveres; ++i)
   // Considerar THREE.InstancedMesh
-  arveres.push(new ZTranslater(-randInt(900, 1000)));
+  arveres.push(new ZTranslater(-randInt(900, 1000), 100, 2));
 
 scene.add(createGround(), ...arveres.map(a => a.mesh));
 
