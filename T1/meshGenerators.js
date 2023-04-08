@@ -1,9 +1,11 @@
 import * as THREE from 'three';
+import { createGroundPlaneWired } from '../libs/util/util.js';
 
 export function createAirplane() {
     const geometry = new THREE.CylinderGeometry(2, 1.2, 25, 32);
     let material1 = new THREE.MeshPhysicalMaterial({
         color: "yellow",
+        transparent: true,
     })
     const tronco = new THREE.Mesh(geometry, material1);
     tronco.rotateX(Math.PI / 2);
@@ -18,6 +20,7 @@ export function createAirplane() {
     // criando estabilizadores
     let material = new THREE.MeshPhysicalMaterial({
         color: "red",
+        transparent: true,
     })
     const estabH = new THREE.Mesh(geometry6, material);
     estabH.position.set(0, -12.5, 0);
@@ -44,7 +47,8 @@ export function createAirplane() {
     // criando as asas
     const geometry3 = new THREE.CylinderGeometry(2, 2, 30, 32);
     let material3 = new THREE.MeshPhysicalMaterial({
-        color: "red"
+        color: "red",
+        transparent: true,
     })
     const cylinder = new THREE.Mesh(geometry3, material3);
     cylinder.rotateZ(Math.PI / 2);
@@ -82,12 +86,14 @@ export function createTree() {
     const geometry = new THREE.CylinderGeometry(2, 2, 20, 32);
     let material1 = new THREE.MeshPhysicalMaterial({
       color: "chocolate",
+      transparent: true,
     })
     const madeira = new THREE.Mesh(geometry, material1);
   
     const geometry6 = new THREE.SphereGeometry(4, 32, 16);
     let material2 = new THREE.MeshPhysicalMaterial({
       color: "green",
+      transparent: true,
     })
     const folhas = new THREE.Mesh(geometry6, material2);
     folhas.position.set(0, 8, 0);
@@ -107,15 +113,9 @@ export function createTree() {
   }
 
 export function createGround() {
-    let mesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(1000, 1000),
-        new THREE.MeshPhysicalMaterial({
-            color: 'green',
-            opacity: 0.6,
-            side: THREE.DoubleSide,
-        }));
-
-    mesh.rotation.set(Math.PI / 2, 0, 0);
-    mesh.position.set(0, -50, -500);
+    let mesh = createGroundPlaneWired(1000, 100, 50, 5, 1, 'darkgreen', 'green');
+    mesh.material.transparent = true;
+    mesh.traverse(obj => { if (obj.isLine) obj.material.transparent = true })
+    mesh.position.set(0, -50, 0);
     return mesh;
 }

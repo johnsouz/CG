@@ -6,7 +6,7 @@ import {
   setDefaultMaterial,
   InfoBox,
   onWindowResize,
-  createGroundPlaneXZ
+  createGroundPlaneWired,
 } from "../libs/util/util.js";
 
 import { Sky } from '../assets/shaders/Sky.js';
@@ -17,7 +17,6 @@ import { createGround, createAirplane, createTree } from './meshGenerators.js';
 
 // Create main scene
 let scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0xffffff, 800, 1000)
 
 // Init a basic renderer
 let renderer = initRenderer();
@@ -109,24 +108,39 @@ if (DEBUF_INFO)
 let randInt = (min, max) =>
   Math.random() * (max - min) + min;
 
+function lerp(x0, y0, x1, y1, x) {
+  if (x <= x0)
+    return y0;
+  else if (x >= x1)
+    return y1;
+  else
+    return (y1 - y0) / (x1 - x0) * (x - x0) + y0;
+}
+
 class ZTranslater {
   /**
-   * 
    * @param {number} from Posição inicial do objeto (No eixo Z)
    * @param {number} to Posição final do objeto (No eixo Z)
    * @param {number} speed Número de unidades somada a coordenada Z a cada chamada de {@link ZTranslater.update}
+   * @param {THREE.Mesh | undefined} mesh O objeto a ser movido. Se `undefined`, utiliza-se {@link createTree} como objeto
    */
-  constructor(from, to = 0, speed = 1) {
+  constructor(from, to = 0, speed = 1, mesh) {
     this.from = from;
     this.to = to;
     this.speed = speed;
-    this.mesh = createTree()
 
-    // inicializa as posições, escalas e rotações com valores aleatorios dentro do dominio
-    this.mesh.position
-      .set(randInt(-250, 250), -40, randInt(to, from));
-    this.mesh.rotation.y = Math.PI * Math.random();
-    this.mesh.scale.setScalar(randInt(6, 10) / 10);
+    if (mesh instanceof THREE.Mesh) {
+      this.mesh = mesh;
+    } else {
+      this.mesh = createTree()
+      this.mesh.material.transparent = true;
+
+      // inicializa as posições, escalas e rotações com valores aleatorios dentro do dominio
+      this.mesh.position
+        .set(randInt(-250, 250), -40, randInt(to, from));
+      this.mesh.rotation.y = Math.PI * Math.random();
+      this.mesh.scale.setScalar(randInt(6, 10) / 10);
+    }
   }
 
   /** 
@@ -135,24 +149,40 @@ class ZTranslater {
    * - Caso ultrapasse {@link ZTranslater.to } volte a {@link ZTranslater.from } */
   update() {
     let pos = this.mesh.position;
+
     pos.z += this.speed;
     if (pos.z >= this.to)
       pos.z = this.from;
+    
+    let opacity = lerp(-950, 0, -800, 1, pos.z);
+    this.mesh.traverse(obj => {
+      if (obj.isMesh || obj.isLine)
+        obj.material.opacity = opacity;
+    });   
   }
 }
 
-/** @type {ZTranslater[]} */
-let arveres = []
+/** Coleção dos objetos que se movem (planos e avião)
+ * @type {ZTranslater[]}
+ */
+let translaters = []
+
+let numGroundPlanes = 10;
+for (let i = 0; i <= numGroundPlanes; ++i) {
+  let ground = new ZTranslater(-numGroundPlanes*100, 100, 1, createGround(100, 100))
+  ground.mesh.position.z -= 100 * i;
+  translaters.push(ground);
+}
+
 let numArveres = 300;
 for (let i = 0; i <= numArveres; ++i)
-  // Considerar THREE.InstancedMesh
-  arveres.push(new ZTranslater(-randInt(900, 1000), 100, 2));
+  translaters.push(new ZTranslater(-1000, 100, 1));
 
-scene.add(createGround(), ...arveres.map(a => a.mesh));
+scene.add(...translaters.map(a => a.mesh));
 
 render();
 function render() {
   requestAnimationFrame(render);
-  arveres.forEach(arvere => arvere.update());
+  translaters.forEach(obj => obj.update());
   renderer.render(scene, camera) // Render scene
 }
