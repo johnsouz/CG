@@ -5,7 +5,6 @@ export function createAirplane() {
     const geometry = new THREE.CylinderGeometry(2, 1.2, 25, 32);
     let material1 = new THREE.MeshPhysicalMaterial({
         color: "yellow",
-        transparent: true,
     })
     const tronco = new THREE.Mesh(geometry, material1);
     tronco.rotateX(Math.PI / 2);
@@ -88,37 +87,43 @@ export function createAirplane() {
 export function createTree() {
     const geometry = new THREE.CylinderGeometry(2, 2, 20, 32);
     let material1 = new THREE.MeshPhysicalMaterial({
-      color: "chocolate",
-      transparent: true,
+        color: "chocolate",
+        transparent: true,
     })
     const madeira = new THREE.Mesh(geometry, material1);
-  
+
     const geometry6 = new THREE.SphereGeometry(4, 32, 16);
     let material2 = new THREE.MeshPhysicalMaterial({
-      color: "green",
-      transparent: true,
+        color: "green",
+        transparent: true,
     })
     const folhas = new THREE.Mesh(geometry6, material2);
     folhas.position.set(0, 8, 0);
     folhas.scale.set(.8, .8, .8);
     madeira.add(folhas);
-  
+
     const folhas2 = new THREE.Mesh(geometry6, material2);
     folhas2.position.set(0, 5, -2);
     folhas2.scale.set(.9, .9, .9);
     madeira.add(folhas2);
-  
+
     const folhas3 = new THREE.Mesh(geometry6, material2);
     folhas3.position.set(-1, 4, 2);
     madeira.add(folhas3);
 
     return madeira;
-  }
+}
 
-export function createGround() {
-    let mesh = createGroundPlaneWired(1000, 100, 50, 5, 1, 'darkgreen', 'green');
+/**
+ * @param {number} width 
+ * @param {number} height 
+ * @param {number} yOffset
+ * @returns {THREE.Mesh}
+ */
+export function createGround(width, height, yOffset) {
+    let mesh = createGroundPlaneWired(width, height, 50, 5, 1, 'darkgreen', 'green');
     mesh.material.transparent = true;
-    mesh.traverse(obj => { if (obj.isLine) obj.material.transparent = true })
-    mesh.position.set(0, -50, 0);
+    mesh.traverse(obj => { if (obj.isLine) obj.material.transparent = true });
+    mesh.position.set(0, yOffset, 0);
     return mesh;
 }
