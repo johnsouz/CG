@@ -4,7 +4,6 @@ import { MathUtils } from 'three';
 import {
   initRenderer,
   initCamera,
-  initDefaultDirectionalLighting,
   onWindowResize,
   initDefaultBasicLight,
 } from "../libs/util/util.js";
@@ -17,7 +16,7 @@ let rand = (min, max) =>
   Math.random() * (max - min) + min;
 
 const CONFIG = {
-  debug: true,
+  debug: false,
   cameraPos: new THREE.Vector3(0, 0, 50),
   lerpFactor: 0.2,
 
@@ -28,9 +27,9 @@ const CONFIG = {
   fogFadeFar: -950,
   fogFadeNear: -800,
 
-  speed: 2,
+  speed: 5,
 
-  treeCount: 300,
+  treeCount: 100,
   treeDistribution: 300,
   treeScaleMin: 0.6,
   treeScaleMax: 1.5,
@@ -155,7 +154,7 @@ let scene = new THREE.Scene();
 // Init a basic renderer
 let renderer = initRenderer();
 let camera = initCamera(CONFIG.cameraPos); // Init camera in this position
-let light = initDefaultDirectionalLighting(scene); // Create a basic light to illuminate the scene
+let light = initDefaultBasicLight(scene); // Create a basic light to illuminate the scene
 
 // https://threejs.org/examples/webgl_shaders_sky.html
 let sky = new Sky();
