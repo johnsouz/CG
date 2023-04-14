@@ -38,14 +38,6 @@ export class PlaneController {
     this.raycastIntersections.length = 0;
     this.raycaster.setFromCamera(this.pointer, this.camera);
     this.raycaster.intersectObject(this.plane, false, this.raycastIntersections);
-
-    this.p.textContent =
-      `obj Position ${vec(this.obj.position)}\n` +
-      `euler ${vec(this.euler)}\n` +
-      `euler ${vec(this.euler)}\n` +
-      `moveDelta ${vec(this.moveDelta)}\n` +
-      `pointer ${vec(this.pointer)}\n` +
-      `rayCast ${vec(this.raycastIntersections[0].point)}`
   }
 
   /**
@@ -62,5 +54,14 @@ export class PlaneController {
 
     this.obj.position.lerp(ray.point, dt * 5)
     this.obj.quaternion.slerp(this.quaternion, 5 * dt);
+
+    if (CONFIG.debug)
+      this.p.textContent =
+        `obj.position ${vec(this.obj.position)}\n` +
+        `euler ${vec(this.euler)}\n` +
+        `quaternion ${vec(this.quaternion)}\n` +
+        `moveDelta ${vec(this.moveDelta)}\n` +
+        `pointer ${vec(this.pointer)}\n` +
+        `ray.point ${vec(ray.point)}`
   }
 }

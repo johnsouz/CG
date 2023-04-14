@@ -3,7 +3,6 @@ import { Vector3 } from "three";
 export const CONFIG = {
     debug: true,
     cameraPos: new Vector3(0, 0, 50),
-    lerpFactor: 0.2,
   
     treePosFrom: -1000,
     treePosTo: 100,
