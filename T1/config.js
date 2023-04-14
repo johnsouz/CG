@@ -15,8 +15,8 @@ export const CONFIG = {
   
     treeCount: 300,
     treeDistribution: 300,
-    treeScaleMin: 0.6,
-    treeScaleMax: 1.5,
+    treeScaleMin: 1.8,
+    treeScaleMax: 2,
   
     planeCount: 10,
     planeWidth: 1000,

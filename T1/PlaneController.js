@@ -52,8 +52,8 @@ export class PlaneController {
     this.euler.z = -MathUtils.clamp(this.moveDelta.x * Math.PI / 45, -Math.PI / 6, Math.PI / 6)
     this.quaternion.setFromEuler(this.euler);
 
-    this.obj.position.lerp(ray.point, dt * 5)
-    this.obj.quaternion.slerp(this.quaternion, 5 * dt);
+    this.obj.position.lerp(ray.point, dt * 10)
+    this.obj.quaternion.slerp(this.quaternion, 10 * dt);
 
     if (CONFIG.debug)
       this.p.textContent =
