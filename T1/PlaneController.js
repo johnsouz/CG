@@ -1,59 +1,66 @@
 import * as THREE from 'three';
 import { MathUtils } from 'three';
-import { CONFIG } from './config.js';
+import { CONFIG, vec } from './config.js';
 
 export class PlaneController {
 
   p = document.querySelector('#coords');
 
   /**
-   * @param {Element} viewport Um objeto da DOM que captura o movimento do mouse
-   * @param {THREE.Object3D} plane O objeto a ser movido
+   * @param {THREE.Object3D} obj O objeto a ser movido
+   * @param {THREE.Camera} camera A camera usado em raycasting
+   * @param {THREE.Object3D} plane Plano que recebe o raio
    */
-  constructor(plane, viewport) {
+  constructor(obj, camera, plane) {
+    this.obj = obj;
+    this.camera = camera;
     this.plane = plane;
-    this.viewport = viewport;
-    this.origin = new THREE.Vector3(viewport.clientWidth / 2, viewport.clientHeight / 2);
-    this.mousePos = new THREE.Vector3();
-    this.mouseDelta = new THREE.Vector3();
-    this.mouseDeltaAbs = new THREE.Vector3();
 
-    window.addEventListener('mousemove', e => this.__mousemoveCallback(e));
-    window.addEventListener('resize', e => this.__resizeCallback(e));
+    this.raycaster = new THREE.Raycaster();
+    this.pointer = new THREE.Vector2();
+    this.moveDelta = new THREE.Vector3();
+
+    this.euler = new THREE.Euler();
+    this.quaternion = new THREE.Quaternion();
+
+    /** @type {THREE.Intersection[]} */
+    this.raycastIntersections = [];
+
+    window.addEventListener('pointermove', e => this.__pointermoveCallback(e));
   }
 
   /** @param {MouseEvent} e */
-  __mousemoveCallback(e) {
-    this.mousePos
-      .set(e.x, e.y);
+  __pointermoveCallback(e) {
 
-    this.mouseDelta
-      .subVectors(this.mousePos, this.origin)
-      .y *= -1;
+    this.pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+    this.pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
-    this.mouseDeltaAbs
-      .set(this.mouseDelta.x / this.origin.x, this.mouseDelta.y / this.origin.y);
+    this.raycastIntersections.length = 0;
+    this.raycaster.setFromCamera(this.pointer, this.camera);
+    this.raycaster.intersectObject(this.plane, false, this.raycastIntersections);
 
-    if (CONFIG.debug)
-      this.p.textContent =
-        `origin = [${this.origin.x}, ${this.origin.y}]\n` +
-        `mouseDelta = [${this.mouseDelta.x}, ${this.mouseDelta.y}, ${this.mouseDelta.z}]\n` +
-        `mouseDeltaAbs = [${this.mouseDeltaAbs.x.toFixed(3)}, ${this.mouseDeltaAbs.y.toFixed(3)}]\n`;
-  }
-
-  /** @param {MouseEvent} e */
-  __resizeCallback(e) {
-    this.origin
-      .set(this.viewport.clientWidth / 2, this.viewport.clientHeight / 2);
+    this.p.textContent =
+      `obj Position ${vec(this.obj.position)}\n` +
+      `euler ${vec(this.euler)}\n` +
+      `euler ${vec(this.euler)}\n` +
+      `moveDelta ${vec(this.moveDelta)}\n` +
+      `pointer ${vec(this.pointer)}\n` +
+      `rayCast ${vec(this.raycastIntersections[0].point)}`
   }
 
   /**
    * @param {number} dt deltaTime
    */
   update(dt) {
-    this.plane.position.lerp(this.mouseDelta.clone().divideScalar(20), CONFIG.lerpFactor);
+    let ray = this.raycastIntersections[0] || { point: new THREE.Vector3() };
+    this.moveDelta.subVectors(ray.point, this.obj.position);
 
-    this.plane.rotation
-      .z = MathUtils.lerp(this.plane.rotation.y, MathUtils.DEG2RAD * 270 * this.mouseDeltaAbs.x, CONFIG.lerpFactor);
+    this.euler.x = MathUtils.clamp(this.moveDelta.y * Math.PI / 90, -Math.PI / 8, Math.PI / 8)
+    this.euler.y = -MathUtils.clamp(this.moveDelta.x * Math.PI / 90, -Math.PI / 8, Math.PI / 8)
+    this.euler.z = -MathUtils.clamp(this.moveDelta.x * Math.PI / 45, -Math.PI / 6, Math.PI / 6)
+    this.quaternion.setFromEuler(this.euler);
+
+    this.obj.position.lerp(ray.point, dt * 5)
+    this.obj.quaternion.slerp(this.quaternion, 5 * dt);
   }
 }

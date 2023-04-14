@@ -5,6 +5,7 @@ import {
   initCamera,
   initDefaultDirectionalLighting,
   onWindowResize,
+  createGroundPlane,
 } from "../libs/util/util.js";
 
 import { Sky } from '../assets/shaders/Sky.js';
@@ -35,9 +36,12 @@ window.addEventListener('resize', () => {
 }, false);
 
 let plane = createAirplane();
-scene.add(plane);
+let raycastPlane = createGroundPlane(1000, 1000);
+raycastPlane.material.transparent = true;
+raycastPlane.material.opacity = 0.2;
+scene.add(plane, raycastPlane);
 
-let planeController = new PlaneController(plane, renderer.domElement);
+let planeController = new PlaneController(plane, camera, raycastPlane);
 if (CONFIG.debug)
   new OrbitControls(camera, renderer.domElement);
 
