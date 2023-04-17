@@ -41,12 +41,12 @@ export class ZTranslater {
    * - Contem a coordenada entre {@link ZTranslater.from } e {@link ZTranslater.to }
    *   - Caso ultrapasse {@link ZTranslater.to } volte a {@link ZTranslater.from }
    */
-  update() {
+  update(dt) {
     let pos = this.mesh.position;
 
-    pos.z += this.speed;
+    pos.z += this.speed * dt;
     if (pos.z >= this.to)
-      pos.z = this.from;
+      pos.z += (this.from - this.to);
 
     let opacity = MathUtils.mapLinear(pos.z, CONFIG.fogFadeFar, CONFIG.fogFadeNear, 0, 1);
     this.mesh.traverse(obj => {
