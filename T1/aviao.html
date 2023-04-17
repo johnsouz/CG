@@ -7,13 +7,27 @@
     <link rel="stylesheet" href="../html/resources/default.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">  
     <style>
+      * {
+        padding: 0;
+        margin: 0;
+        border: 0;
+        vertical-align: baseline;
+      }
       #coords {
-        font-size: xx-large;
+        font-size: x-large;
         color: white;
         position: absolute;
-        left: .75em;
-        top: .0;
-        font-family: monospace;
+        left: 0.5em;
+        top: 0.5em;
+        font-family: 'consolas';
+        
+        display: grid;
+        grid-template-columns: 200px 500px;
+      }
+
+      #coords div:nth-child(2n+1) {
+        padding-right: 12pt;
+        text-align: right;
       }
     </style>
   </head>
@@ -29,7 +43,7 @@
     <script type="module" src="main.js"></script>
   </div>
 
-  <pre id="coords"></pre>
+  <div id="coords"></div>
 </body>
 
 </html>

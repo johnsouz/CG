@@ -24,5 +24,14 @@ export const CONFIG = {
     planeVerticalOffset: -50,
   };
 
-export let vec = (vec) =>
-  `[${vec.x.toFixed(2)}, ${vec.y.toFixed(2)}${ vec.z != undefined ? ", " + vec.z.toFixed(2) : ""}${ vec.w != undefined ? ", " + vec.z.toFixed(2) : ""}]`;
+export let vec = (vec) => {
+  let ret = []
+
+  for (let prop of ['x', 'y', 'z', 'w']) {
+    if (prop in vec) {
+      ret.push(vec[prop].toFixed(2));
+    }
+  }
+
+  return '[' + ret.join(', ') + ']';
+}

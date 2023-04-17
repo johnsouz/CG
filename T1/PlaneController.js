@@ -44,7 +44,7 @@ export class PlaneController {
    * @param {number} dt deltaTime
    */
   update(dt) {
-    let ray = this.raycastIntersections[0] || { point: new THREE.Vector3() };
+    let ray = this.raycastIntersections[0] || { point: this.obj.position };
     this.moveDelta.subVectors(ray.point, this.obj.position);
 
     this.euler.x = MathUtils.clamp(this.moveDelta.y * Math.PI / 90, -Math.PI / 8, Math.PI / 8)
@@ -56,12 +56,12 @@ export class PlaneController {
     this.obj.quaternion.slerp(this.quaternion, 10 * dt);
 
     if (CONFIG.debug)
-      this.p.textContent =
-        `obj.position ${vec(this.obj.position)}\n` +
-        `euler ${vec(this.euler)}\n` +
-        `quaternion ${vec(this.quaternion)}\n` +
-        `moveDelta ${vec(this.moveDelta)}\n` +
-        `pointer ${vec(this.pointer)}\n` +
-        `ray.point ${vec(ray.point)}`
+      this.p.innerHTML =
+        `<div>obj.position</div><div>${vec(this.obj.position)}</div>` +
+        `<div>euler</div><div>${vec(this.euler)}</div>` +
+        `<div>quaternion</div><div>${vec(this.quaternion)}</div>` +
+        `<div>moveDelta</div><div>${vec(this.moveDelta)}</div>` +
+        `<div>pointer</div><div>${vec(this.pointer)}</div>` +
+        `<div>ray.point</div><div>${vec(ray.point)}</div>`
   }
 }

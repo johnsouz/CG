@@ -37,8 +37,7 @@ window.addEventListener('resize', () => {
 
 let plane = createAirplane();
 let raycastPlane = createGroundPlane(1000, 1000);
-raycastPlane.material.transparent = true;
-raycastPlane.material.opacity = 0.2;
+raycastPlane.visible = false;
 scene.add(plane, raycastPlane);
 
 let planeController = new PlaneController(plane, camera, raycastPlane);
