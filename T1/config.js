@@ -24,7 +24,7 @@ export const CONFIG = {
   planeVerticalOffset: -50,
 };
 
-export let vec = (vec) => {
+export let vectorToString = (vec) => {
   let ret = []
 
   for (let prop of ['x', 'y', 'z', 'w']) {
@@ -34,4 +34,18 @@ export let vec = (vec) => {
   }
 
   return '[' + ret.join(', ') + ']';
+}
+
+/**
+ * @param {any} obj 
+ * @param {string[]} props 
+ * @param {string?} label
+ */
+export let sprintProps = (obj, props, label) => {
+  let ret = [];
+
+  for (let prop of props)
+    ret.push((label ?? prop).padEnd(12, ' ') + vectorToString(obj[prop]) + '\n');
+
+  return ret.join('')
 }

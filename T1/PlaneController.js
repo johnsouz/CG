@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { MathUtils } from 'three';
-import { CONFIG, vec } from './config.js';
+import { CONFIG, sprintProps } from './config.js';
 
 export class PlaneController {
 
@@ -56,12 +56,9 @@ export class PlaneController {
     this.obj.quaternion.slerp(this.quaternion, 10 * dt);
 
     if (CONFIG.debug)
-      this.p.innerHTML =
-        `<div>obj.position</div><div>${vec(this.obj.position)}</div>` +
-        `<div>euler</div><div>${vec(this.euler)}</div>` +
-        `<div>quaternion</div><div>${vec(this.quaternion)}</div>` +
-        `<div>moveDelta</div><div>${vec(this.moveDelta)}</div>` +
-        `<div>pointer</div><div>${vec(this.pointer)}</div>` +
-        `<div>ray.point</div><div>${vec(ray.point)}</div>`
+      this.p.innerText =
+        sprintProps(this.obj, ["position"]) +
+        sprintProps(this, [ "euler", "quaternion", "moveDelta", "pointer"]) + 
+        sprintProps(ray, ["point"], "ray.point");
   }
 }
