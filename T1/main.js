@@ -31,9 +31,7 @@ scene.add(sky);
 sky.material.uniforms['sunPosition'].value.setFromSphericalCoords(1, 0.4 * Math.PI, 0);
 
 // Listen window size changes
-window.addEventListener('resize', () => {
-  onWindowResize(camera, renderer)
-}, false);
+window.addEventListener('resize', ev => onWindowResize(camera, renderer));
 
 let plane = createAirplane();
 let raycastPlane = createGroundPlane(1000, 1000);
@@ -41,8 +39,11 @@ raycastPlane.visible = false;
 scene.add(plane, raycastPlane);
 
 let planeController = new PlaneController(plane, camera, raycastPlane);
-if (CONFIG.debug)
-  new OrbitControls(camera, renderer.domElement);
+let orbitController = new OrbitControls(camera, renderer.domElement);
+
+window.addEventListener('blur', _ => CONFIG.simulationOn = false);
+window.addEventListener('focus', _ => CONFIG.simulationOn = true);
+window.addEventListener('debug', _ => orbitController.enabled = CONFIG.debug)
 
 /** Coleção dos objetos que se movem (planos e árvores)
  * @type {ZTranslater[]} */
@@ -70,8 +71,10 @@ scene.add(...translaters.map(a => a.mesh));
 function render() {
   requestAnimationFrame(render);
   let dt = clock.getDelta();
-  translaters.forEach(obj => obj.update(dt));
-  planeController.update(dt)
+  if (CONFIG.simulationOn) {
+    translaters.forEach(obj => obj.update(dt));
+    planeController.update(dt)
+  }
 
   renderer.render(scene, camera) // Render scene
 }

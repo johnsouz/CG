@@ -1,6 +1,7 @@
 import { Vector3 } from "three";
 
 export const CONFIG = {
+  simulationOn: true,
   debug: true,
   cameraPos: new Vector3(0, 0, 50),
 
@@ -24,6 +25,15 @@ export const CONFIG = {
   planeVerticalOffset: -50,
 };
 
+window.addEventListener('keyup', ev => {
+  if (ev.key != 'd')
+    return;
+
+  CONFIG.debug = !CONFIG.debug;
+  document.getElementById('coords').style.opacity = CONFIG.debug ? 1 : 0;
+  window.dispatchEvent(new Event('debug'));
+});
+
 export let vectorToString = (vec) => {
   let ret = []
 
@@ -45,7 +55,7 @@ export let sprintProps = (obj, props, label) => {
   let ret = [];
 
   for (let prop of props)
-    ret.push((label ?? prop).padEnd(12, ' ') + vectorToString(obj[prop]) + '\n');
+    ret.push((label ?? prop).padStart(12, ' ') + vectorToString(obj[prop]) + '\n');
 
   return ret.join('')
 }

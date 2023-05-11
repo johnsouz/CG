@@ -16,6 +16,10 @@ export class PlaneController {
     this.camera = camera;
     this.plane = plane;
 
+    this.cameraInitialPos = camera.position.clone(),
+      this.cameraInitialRotation = camera.quaternion.clone(),
+      this.cameraTarget = new THREE.Vector3();
+
     this.raycaster = new THREE.Raycaster();
     this.pointer = new THREE.Vector2();
     this.moveDelta = new THREE.Vector3();
@@ -31,19 +35,18 @@ export class PlaneController {
 
   /** @param {MouseEvent} e */
   __pointermoveCallback(e) {
-
     this.pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
     this.pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-    this.raycastIntersections.length = 0;
-    this.raycaster.setFromCamera(this.pointer, this.camera);
-    this.raycaster.intersectObject(this.plane, false, this.raycastIntersections);
   }
 
   /**
    * @param {number} dt deltaTime
-   */
+  */
   update(dt) {
+    this.raycastIntersections.length = 0;
+    this.raycaster.setFromCamera(this.pointer, this.camera);
+    this.raycaster.intersectObject(this.plane, false, this.raycastIntersections);
+
     let ray = this.raycastIntersections[0] || { point: this.obj.position };
     this.moveDelta.subVectors(ray.point, this.obj.position);
 
@@ -52,13 +55,28 @@ export class PlaneController {
     this.euler.z = -MathUtils.clamp(this.moveDelta.x * Math.PI / 45, -Math.PI / 6, Math.PI / 6)
     this.quaternion.setFromEuler(this.euler);
 
+    // quando não estiver em debug, a camera se movimenta levemente em
+    // direção as coordenas de tela do mouse
+    if (!CONFIG.debug) {
+      this.cameraTarget.copy(this.cameraInitialPos)
+      this.cameraTarget.x += this.pointer.x * 20;
+      this.cameraTarget.y += this.pointer.y * 5;
+
+      // translação da camera
+      this.camera.position.lerp(this.cameraTarget, dt * 20);
+
+      // ao sair do modo debug, a rotação da camera pode ter sido modificada
+      this.camera.quaternion.slerp(this.cameraInitialRotation, dt * 10);
+    }
+
+    // translação e rotação do objeto
     this.obj.position.lerp(ray.point, dt * 10)
-    this.obj.quaternion.slerp(this.quaternion, 10 * dt);
+    this.obj.quaternion.slerp(this.quaternion, dt * 10);
 
     if (CONFIG.debug)
       this.p.innerText =
         sprintProps(this.obj, ["position"]) +
-        sprintProps(this, [ "euler", "quaternion", "moveDelta", "pointer"]) + 
+        sprintProps(this, ["euler", "quaternion", "moveDelta", "pointer"]) +
         sprintProps(ray, ["point"], "ray.point");
   }
 }
