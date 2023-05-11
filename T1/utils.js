@@ -12,15 +12,15 @@ export const CONFIG = {
   fogFadeFar: -950,
   fogFadeNear: -800,
 
-  speed: 500,
+  speed: 200,
 
-  treeCount: 300,
+  treeCount: 100,
   treeDistribution: 300,
   treeScaleMin: 1.8,
   treeScaleMax: 2,
 
-  planeCount: 10,
-  planeWidth: 1000,
+  planeCount: 14,
+  planeWidth: 500,
   planeHeight: 100,
   planeVerticalOffset: -50,
 };

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { MathUtils } from 'three';
-import { CONFIG, sprintProps } from './config.js';
+import { CONFIG, sprintProps } from './utils.js';
 
 export class PlaneController {
 

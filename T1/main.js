@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { MathUtils } from 'three';
 
 import {
   initRenderer,
@@ -11,9 +12,9 @@ import {
 import { Sky } from '../assets/shaders/Sky.js';
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 
-import { CONFIG } from './config.js';
-import { createGround, createAirplane } from './meshGenerators.js';
-import { ZTranslater } from './ZTranslater.js';
+import { CONFIG } from './utils.js';
+import { createGround, createAirplane, createTree } from './meshGenerators.js';
+import { Translater, opacityFog } from './Translater.js';
 import { PlaneController } from './PlaneController.js';
 
 // Create main scene
@@ -46,27 +47,36 @@ window.addEventListener('focus', _ => CONFIG.simulationOn = true);
 window.addEventListener('debug', _ => orbitController.enabled = CONFIG.debug)
 
 /** Coleção dos objetos que se movem (planos e árvores)
- * @type {ZTranslater[]} */
+ * @type {Translater[]} */
 let translaters = []
+const Z = new THREE.Vector3(0, 0, 1);
 
-for (let i = 0; i <= CONFIG.planeCount; ++i) {
-  let ground = new ZTranslater(
-    -CONFIG.planeCount * CONFIG.planeHeight,
-    CONFIG.planeHeight,
-    CONFIG.speed,
-    createGround(CONFIG.planeWidth, CONFIG.planeHeight, CONFIG.planeVerticalOffset)
-  );
+for (let i = 0; i < CONFIG.planeCount; ++i) {
+  let ground = createGround(CONFIG.planeWidth, CONFIG.planeHeight, CONFIG.planeVerticalOffset);
+  ground.material.transparent = true;
+  ground.position.z = -CONFIG.planeHeight * i;
+  
+  let translater = new Translater(Z, ground, CONFIG.speed, 1400, opacityFog);
+  translater.startPoint.z = -1200;
 
-  // posição inicial depende da ordem de inserção
-  ground.mesh.position.z -= CONFIG.planeHeight * i;
-
-  translaters.push(ground);
+  translaters.push(translater);
 }
 
-for (let i = 0; i <= CONFIG.treeCount; ++i)
-  translaters.push(new ZTranslater(CONFIG.treePosFrom, CONFIG.treePosTo, CONFIG.speed));
+for (let i = 0; i <= CONFIG.treeCount; ++i) {
+  let tree = createTree()
+  tree.material.transparent = true;
 
-scene.add(...translaters.map(a => a.mesh));
+  tree.position.x = MathUtils.randFloatSpread(CONFIG.treeDistribution);
+  tree.position.y = CONFIG.treeVerticalOffset;
+  tree.position.z = MathUtils.randInt(-1200, 200);
+
+  let translater = new Translater(Z, tree, CONFIG.speed, 1400, opacityFog)
+  translater.startPoint.z = -1200
+
+  translaters.push(translater);
+}
+
+scene.add(...translaters.map(a => a.object));
 
 function render() {
   requestAnimationFrame(render);
