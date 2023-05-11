@@ -14,13 +14,13 @@ export const CONFIG = {
 
   speed: 200,
 
-  treeCount: 100,
-  treeDistribution: 300,
+  treeCount: 60,
+  treeDistribution: 120,
   treeScaleMin: 1.8,
   treeScaleMax: 2,
 
   planeCount: 14,
-  planeWidth: 500,
+  planeWidth: 150,
   planeHeight: 100,
   planeVerticalOffset: -50,
 };

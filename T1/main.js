@@ -13,7 +13,7 @@ import { Sky } from '../assets/shaders/Sky.js';
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 
 import { CONFIG } from './utils.js';
-import { createGround, createAirplane, createTree } from './meshGenerators.js';
+import { createGround, createAirplane, createTree, createCuboid } from './meshGenerators.js';
 import { Translater, opacityFog } from './Translater.js';
 import { PlaneController } from './PlaneController.js';
 
@@ -54,12 +54,21 @@ const Z = new THREE.Vector3(0, 0, 1);
 for (let i = 0; i < CONFIG.planeCount; ++i) {
   let ground = createGround(CONFIG.planeWidth, CONFIG.planeHeight, CONFIG.planeVerticalOffset);
   ground.material.transparent = true;
-  ground.position.z = -CONFIG.planeHeight * i;
   
-  let translater = new Translater(Z, ground, CONFIG.speed, 1400, opacityFog);
-  translater.startPoint.z = -1200;
+  let boxLeft = createCuboid(100, 100, 100)
+  boxLeft.position.x += CONFIG.planeWidth/2 + 50;
+  
+  let boxRight = boxLeft.clone();
+  boxLeft.position.x -= CONFIG.planeWidth + 100;
+  
+  let holder = new THREE.Object3D();
+  holder.add(boxLeft, ground, boxRight);
+  holder.position.z = -CONFIG.planeHeight * i;
 
-  translaters.push(translater);
+  let holderT = new Translater(Z, holder, CONFIG.speed, 1400, opacityFog);
+  holderT.startPoint.z = -1200;
+  
+  translaters.push(holderT);
 }
 
 for (let i = 0; i <= CONFIG.treeCount; ++i) {

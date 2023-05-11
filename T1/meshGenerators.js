@@ -105,9 +105,25 @@ export function createTree() {
  * @returns {THREE.Mesh}
  */
 export function createGround(width, height, yOffset) {
-    let mesh = createGroundPlaneWired(width, height, 50, 5, 1, 'darkgreen', 'green');
+    let mesh = createGroundPlaneWired(width, height, 15, 5, 1, 'darkgreen', 'green');
     mesh.material.transparent = true;
     mesh.traverse(obj => { if (obj.isLine) obj.material.transparent = true });
     mesh.position.set(0, yOffset, 0);
+    return mesh;
+}
+
+/**
+ * @param {number} sizeX 
+ * @param {number} sizeY 
+ * @param {number} sizeZ 
+ * @returns {THREE.Mesh}
+ */
+export function createCuboid(sizeX, sizeY, sizeZ) {
+    let mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(sizeX, sizeY, sizeZ),
+        setDefaultMaterial('darkgreen')
+    );
+    mesh.material.transparent = true;
+
     return mesh;
 }
