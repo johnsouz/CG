@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { createGroundPlaneWired, setDefaultMaterial } from '../libs/util/util.js';
+import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
+
 
 export function createAirplane() {
     const geometry = new THREE.CylinderGeometry(2, 1.2, 25, 32);
@@ -69,6 +71,21 @@ export function createAirplane() {
     holder.add(tronco.rotateZ(Math.PI));
 
     return holder;
+}
+
+export function importAirplane(scene) {
+    let holder = new THREE.Object3D();
+    scene.add(holder);
+
+    const loader = new GLTFLoader();
+    loader.load('./airplane/airplane.glb', loaded => {
+        /** @type {THREE.Group} */
+        const obj = loaded.scene;
+
+        holder.add(loaded.scene);
+    });
+
+    return holder
 }
 
 export function createTree() {

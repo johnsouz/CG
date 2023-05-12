@@ -13,7 +13,7 @@ import { Sky } from '../assets/shaders/Sky.js';
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 
 import { CONFIG } from './utils.js';
-import { createGround, createAirplane, createTree, createCuboid } from './meshGenerators.js';
+import { createGround, createTree, createCuboid, importAirplane } from './meshGenerators.js';
 import { Translater, opacityFog } from './Translater.js';
 import { PlaneController } from './PlaneController.js';
 
@@ -22,6 +22,7 @@ let scene = new THREE.Scene();
 
 // Init a basic renderer
 let renderer = initRenderer();
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 let camera = initCamera(CONFIG.cameraPos); // Init camera in this position
 let light = initDefaultDirectionalLighting(scene); // Create a basic light to illuminate the scene
 
@@ -34,7 +35,7 @@ sky.material.uniforms['sunPosition'].value.setFromSphericalCoords(1, 0.4 * Math.
 // Listen window size changes
 window.addEventListener('resize', ev => onWindowResize(camera, renderer));
 
-let plane = createAirplane();
+let plane = importAirplane(scene);
 let raycastPlane = createGroundPlane(1000, 1000);
 raycastPlane.visible = false;
 scene.add(plane, raycastPlane);
