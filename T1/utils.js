@@ -3,8 +3,10 @@ import { Vector3 } from "three";
 export const CONFIG = {
   simulationOn: true,
   debug: true,
+  
   cameraPos: new Vector3(0, 0, 50),
-
+  cameraFov: 45,
+  
   treePosFrom: -1000,
   treePosTo: 100,
   treeVerticalOffset: -40,
@@ -23,6 +25,8 @@ export const CONFIG = {
   planeWidth: 150,
   planeHeight: 100,
   planeVerticalOffset: -50,
+
+  airplaneOffset: 100
 };
 
 window.addEventListener('keyup', ev => {

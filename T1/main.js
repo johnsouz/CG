@@ -52,8 +52,8 @@ window.addEventListener('resize', ev => onWindowResize(camera, renderer));
 
 let plane = importAirplane(scene);
 let raycastPlane = createGroundPlaneWired(200, 200);
-raycastPlane.rotateX(Math.PI/2);
-raycastPlane.position.z = -50;
+raycastPlane.rotateX(Math.PI / 2);
+raycastPlane.position.z = -CONFIG.airplaneOffset;
 raycastPlane.visible = CONFIG.debug;
 raycastPlane.material.transparent = true;
 raycastPlane.material.opacity = 0.2;
@@ -71,9 +71,34 @@ window.addEventListener('focus', _ => CONFIG.simulationOn = true);
 window.addEventListener('debug', _ => {
   orbitController.enabled = CONFIG.debug;
   shadowMapHelper.visible = CONFIG.debug;
-  document.body.style.cursor = CONFIG.debug ? 'auto' : 'none';
   raycastPlane.visible = CONFIG.debug;
 })
+window.addEventListener('keydown', ev => {
+
+  switch (ev.key) {
+    case 'Escape':
+      CONFIG.simulationOn = !CONFIG.simulationOn;
+      break;
+
+    case '1':
+      CONFIG.cameraFov = 45;
+      CONFIG.speed = 200;
+      break;
+
+    case '2':
+      CONFIG.cameraFov = 50;
+      CONFIG.speed = 400;
+      break;
+
+    case '3':
+      CONFIG.cameraFov = 55;
+      CONFIG.speed = 500;
+      break;
+  }
+
+  document.body.style.cursor = !CONFIG.simulationOn ? 'auto' : 'none';
+})
+
 
 /** Coleção dos objetos que se movem (planos e árvores)
  * @type {Translater[]} */
@@ -94,7 +119,7 @@ for (let i = 0; i < CONFIG.planeCount; ++i) {
   holder.add(boxLeft, ground, boxRight);
   holder.position.z = -CONFIG.planeHeight * i;
 
-  let holderT = new Translater(Z, holder, CONFIG.speed, 1400, opacityFog);
+  let holderT = new Translater(Z, holder, 1400, opacityFog);
   holderT.startPoint.z = -1200;
 
   translaters.push(holderT);
@@ -108,7 +133,7 @@ for (let i = 0; i <= CONFIG.treeCount; ++i) {
   tree.position.y = CONFIG.treeVerticalOffset;
   tree.position.z = MathUtils.randInt(-1200, 200);
 
-  let translater = new Translater(Z, tree, CONFIG.speed, 1400, opacityFog)
+  let translater = new Translater(Z, tree, 1400, opacityFog)
   translater.startPoint.z = -1200
 
   translaters.push(translater);
@@ -122,6 +147,9 @@ function render() {
   if (CONFIG.simulationOn) {
     translaters.forEach(obj => obj.update(dt));
     planeController.update(dt)
+
+    camera.fov = MathUtils.lerp(camera.fov, CONFIG.cameraFov, 10 * dt)
+    camera.updateProjectionMatrix();
   }
 
   renderer.render(scene, camera) // Render scene

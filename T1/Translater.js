@@ -6,15 +6,13 @@ export class Translater {
   /**
    * @param {THREE.Vector3} direction 
    * @param {THREE.Object3D} object 
-   * @param {number} speed
    * @param {number} distance
    * @param {?function(this: Translater): void} customUpdate
    * @param {?THREE.Vector3} startPoint 
    */
-  constructor(direction, object, speed, distance, customUpdate, startPoint) {
+  constructor(direction, object, distance, customUpdate, startPoint) {
     this.direction = direction.normalize();
     this.object = object;
-    this.speed = speed;
     this.distance = distance;
     this.customUpdate = customUpdate;
     this.startPoint = startPoint ?? object.position.clone();
@@ -26,7 +24,7 @@ export class Translater {
     // deltaPos <- a distancia em que o objeto se move em 1 frame
     this.#deltaPos
       .copy(this.direction)
-      .multiplyScalar(this.speed * dt);
+      .multiplyScalar(CONFIG.speed * dt);
 
     this.object.position
       .add(this.#deltaPos)

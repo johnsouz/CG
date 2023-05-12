@@ -63,7 +63,7 @@ export class PlaneController {
     // direção as coordenas de tela do mouse
     if (!CONFIG.debug) {
       this.cameraTarget.copy(this.cameraInitialPos)
-      this.cameraTarget.x += this.pointer.x * 50;
+      this.cameraTarget.x += this.pointer.x * 25;
       this.cameraTarget.y += this.pointer.y * 25;
 
       // translação da camera
@@ -79,9 +79,9 @@ export class PlaneController {
     this.target.position.y = MathUtils.clamp(this.target.position.y, -30, 30);
     
     // translação e rotação do objeto e alvo,
-    // sendo que o objeto está a 50 unidades atrás do alvo
+    // sendo que o objeto está a CONFIG.airplaneOffset unidades atrás do alvo
     this.objectPosition.copy(this.target.position);
-    this.objectPosition.z += 50;
+    this.objectPosition.z += CONFIG.airplaneOffset;
     this.object.position.lerp(this.objectPosition, dt * 2)
     
     // o vetor unitario da direção objeto/target
