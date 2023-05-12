@@ -83,6 +83,10 @@ export function importAirplane(scene) {
         const obj = loaded.scene;
 
         holder.add(loaded.scene);
+        holder.traverse(o => {
+            o.castShadow = true;
+            o.receiveShadow = true;
+        });
     });
 
     return holder
@@ -111,6 +115,11 @@ export function createTree() {
     const folhas3 = new THREE.Mesh(geometry6, greenMaterial);
     folhas3.position.set(-1, 4, 2);
     madeira.add(folhas3);
+
+    madeira.traverse(a => {
+        a.castShadow = true;
+        a.receiveShadow = true;
+    })
 
     return madeira;
 }
@@ -141,6 +150,7 @@ export function createCuboid(sizeX, sizeY, sizeZ) {
         setDefaultMaterial('darkgreen')
     );
     mesh.material.transparent = true;
+    mesh.receiveShadow = true;
 
     return mesh;
 }
