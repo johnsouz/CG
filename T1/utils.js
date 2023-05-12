@@ -26,7 +26,8 @@ export const CONFIG = {
   planeHeight: 100,
   planeVerticalOffset: -50,
 
-  airplaneOffset: 100
+  airplaneOffset: 100,
+  raycastplaneOffset: -100
 };
 
 window.addEventListener('keyup', ev => {

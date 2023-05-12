@@ -33,13 +33,15 @@ let camera = initCamera(CONFIG.cameraPos); // Init camera in this position
 let light = new THREE.DirectionalLight('white', 1.2);
 let ambient = new THREE.AmbientLight('white', 0.2);
 light.position.set(75, 50, 0);
+light.target.position.z = -200;
 light.castShadow = true;
-light.shadow.camera.left = -10
-light.shadow.camera.right = 700
+light.shadow.camera.left = -200
+light.shadow.camera.right = 300
 light.shadow.camera.top = 100
 light.shadow.camera.bottom = -100
+light.shadow.camera.far = 2000
 
-scene.add(light, ambient);
+scene.add(light, ambient, light.target);
 
 // https://threejs.org/examples/webgl_shaders_sky.html
 let sky = new Sky();
@@ -53,7 +55,7 @@ window.addEventListener('resize', ev => onWindowResize(camera, renderer));
 let plane = importAirplane(scene);
 let raycastPlane = createGroundPlaneWired(200, 200);
 raycastPlane.rotateX(Math.PI / 2);
-raycastPlane.position.z = -CONFIG.airplaneOffset;
+raycastPlane.position.z = CONFIG.raycastplaneOffset;
 raycastPlane.visible = CONFIG.debug;
 raycastPlane.material.transparent = true;
 raycastPlane.material.opacity = 0.2;
