@@ -13,7 +13,7 @@ export class PlaneController {
    * @param {THREE.Object3D} plane Plano que recebe o raio
    */
   constructor(obj, camera, target, plane) {
-    this.obj = obj;
+    this.object = obj;
     this.camera = camera;
     this.target = target;
     this.plane = plane;
@@ -21,12 +21,14 @@ export class PlaneController {
     this.cameraInitialPos = camera.position.clone();
     this.cameraInitialRotation = camera.quaternion.clone();
     this.cameraTarget = new THREE.Vector3();
+    this.objectPosition = new THREE.Vector3();
+    this.direction = new THREE.Vector3();
 
     this.raycaster = new THREE.Raycaster();
     this.pointer = new THREE.Vector2();
     this.moveDelta = new THREE.Vector3();
 
-    this.euler = new THREE.Euler();
+    this.euler = new THREE.Euler(0, Math.PI, 0);
     this.quaternion = new THREE.Quaternion();
 
     /** @type {THREE.Intersection[]} */
@@ -45,17 +47,17 @@ export class PlaneController {
    * @param {number} dt deltaTime
   */
   update(dt) {
+
+    // setup do raycaster a partir da camera
     this.raycastIntersections.length = 0;
     this.raycaster.setFromCamera(this.pointer, this.camera);
     this.raycaster.intersectObject(this.plane, false, this.raycastIntersections);
 
-    let ray = this.raycastIntersections[0] || { point: this.obj.position };
-    this.moveDelta.subVectors(ray.point, this.obj.position);
+    // interseção do raycaster, caso não exista, é a posição do object
+    let ray = this.raycastIntersections[0] || { point: this.target.position };
 
-    this.euler.x = MathUtils.clamp(this.moveDelta.y * Math.PI / 90, -Math.PI / 8, Math.PI / 8)
-    this.euler.y = -MathUtils.clamp(this.moveDelta.x * Math.PI / 90, -Math.PI / 8, Math.PI / 8)
-    this.euler.z = -MathUtils.clamp(this.moveDelta.x * Math.PI / 45, -Math.PI / 6, Math.PI / 6)
-    this.quaternion.setFromEuler(this.euler);
+    // delta da posição desde o último frame
+    this.moveDelta.subVectors(ray.point, this.object.position);
 
     // quando não estiver em debug, a camera se movimenta levemente em
     // direção as coordenas de tela do mouse
@@ -71,16 +73,33 @@ export class PlaneController {
       this.camera.quaternion.slerp(this.cameraInitialRotation, dt * 10);
     }
 
-    // translação e rotação do objeto
-    this.obj.position.lerp(ray.point, dt * 5)
-    this.obj.quaternion.slerp(this.quaternion, dt * 10);
+    // translação do alvo para o ponto de interseção
+    this.target.position.lerp(ray.point, dt * 10);
+    this.target.position.x = MathUtils.clamp(this.target.position.x, -60, 60);
+    this.target.position.y = MathUtils.clamp(this.target.position.y, -30, 30);
     
-    this.target.position.copy(this.obj.position);
-    this.target.quaternion.copy(this.obj.quaternion);
+    // translação e rotação do objeto e alvo,
+    // sendo que o objeto está a 50 unidades atrás do alvo
+    this.objectPosition.copy(this.target.position);
+    this.objectPosition.z += 50;
+    this.object.position.lerp(this.objectPosition, dt * 2)
+    
+    // o vetor unitario da direção objeto/target
+    this.direction
+      .subVectors(this.target.position, this.object.position)
+      .normalize();
+
+    // o objeto sempre apontará para o alvo
+    this.object.lookAt(this.target.position);
+    
+    // rotação do filho em torno do eixo Z
+    this.euler.z = MathUtils.clamp(-this.moveDelta.x * Math.PI / 45, -Math.PI / 6, Math.PI / 6)
+    this.quaternion.setFromEuler(this.euler);
+    this.object.children[0].quaternion.slerp(this.quaternion, dt * 20);
 
     if (CONFIG.debug)
       this.p.innerText =
-        sprintProps(this.obj, ["position"]) +
+        sprintProps(this.object, ["position"]) +
         sprintProps(this, ["euler", "quaternion", "moveDelta", "pointer"]) +
         sprintProps(ray, ["point"], "ray.point");
   }

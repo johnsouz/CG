@@ -51,16 +51,15 @@ sky.material.uniforms['sunPosition'].value.setFromSphericalCoords(1, 0.4 * Math.
 window.addEventListener('resize', ev => onWindowResize(camera, renderer));
 
 let plane = importAirplane(scene);
-let raycastPlane = createGroundPlaneWired(150, 100);
+let raycastPlane = createGroundPlaneWired(200, 200);
 raycastPlane.rotateX(Math.PI/2);
+raycastPlane.position.z = -50;
 raycastPlane.visible = CONFIG.debug;
 raycastPlane.material.transparent = true;
 raycastPlane.material.opacity = 0.2;
 
 let shadowMapHelper = new THREE.CameraHelper(light.shadow.camera)
 let target = new THREE.Mesh(new THREE.SphereGeometry(1), setDefaultMaterial('purple'))
-target.add(target.clone())
-target.children[0].translateZ(-50);
 
 scene.add(plane, raycastPlane, shadowMapHelper, target);
 
