@@ -4,9 +4,8 @@ import { MathUtils } from 'three';
 import {
   initRenderer,
   initCamera,
-  initDefaultDirectionalLighting,
   onWindowResize,
-  createGroundPlane,
+  createGroundPlaneWired,
 } from "../libs/util/util.js";
 
 import { Sky } from '../assets/shaders/Sky.js';
@@ -16,6 +15,7 @@ import { CONFIG } from './utils.js';
 import { createGround, createTree, createCuboid, importAirplane } from './meshGenerators.js';
 import { Translater, opacityFog } from './Translater.js';
 import { PlaneController } from './PlaneController.js';
+import { setDefaultMaterial } from '../libs/util/util.js';
 
 // Create main scene
 let scene = new THREE.Scene();
@@ -51,15 +51,20 @@ sky.material.uniforms['sunPosition'].value.setFromSphericalCoords(1, 0.4 * Math.
 window.addEventListener('resize', ev => onWindowResize(camera, renderer));
 
 let plane = importAirplane(scene);
-let raycastPlane = createGroundPlane(1000, 1000);
-raycastPlane.visible = false;
-plane.receiveShadow = false;
-plane.castShadow = false;
+let raycastPlane = createGroundPlaneWired(150, 100);
+raycastPlane.rotateX(Math.PI/2);
+raycastPlane.visible = CONFIG.debug;
+raycastPlane.material.transparent = true;
+raycastPlane.material.opacity = 0.2;
 
 let shadowMapHelper = new THREE.CameraHelper(light.shadow.camera)
-scene.add(plane, raycastPlane, shadowMapHelper);
+let target = new THREE.Mesh(new THREE.SphereGeometry(1), setDefaultMaterial('purple'))
+target.add(target.clone())
+target.children[0].translateZ(-50);
 
-let planeController = new PlaneController(plane, camera, raycastPlane);
+scene.add(plane, raycastPlane, shadowMapHelper, target);
+
+let planeController = new PlaneController(plane, camera, target, raycastPlane);
 let orbitController = new OrbitControls(camera, renderer.domElement);
 
 window.addEventListener('blur', _ => CONFIG.simulationOn = false);
@@ -67,6 +72,8 @@ window.addEventListener('focus', _ => CONFIG.simulationOn = true);
 window.addEventListener('debug', _ => {
   orbitController.enabled = CONFIG.debug;
   shadowMapHelper.visible = CONFIG.debug;
+  document.body.style.cursor = CONFIG.debug ? 'auto' : 'none';
+  raycastPlane.visible = CONFIG.debug;
 })
 
 /** Coleção dos objetos que se movem (planos e árvores)

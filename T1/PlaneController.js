@@ -9,16 +9,18 @@ export class PlaneController {
   /**
    * @param {THREE.Object3D} obj O objeto a ser movido
    * @param {THREE.Camera} camera A camera usado em raycasting
+   * @param {THREE.Object3D} target O objeto que será a mira
    * @param {THREE.Object3D} plane Plano que recebe o raio
    */
-  constructor(obj, camera, plane) {
+  constructor(obj, camera, target, plane) {
     this.obj = obj;
     this.camera = camera;
+    this.target = target;
     this.plane = plane;
 
-    this.cameraInitialPos = camera.position.clone(),
-      this.cameraInitialRotation = camera.quaternion.clone(),
-      this.cameraTarget = new THREE.Vector3();
+    this.cameraInitialPos = camera.position.clone();
+    this.cameraInitialRotation = camera.quaternion.clone();
+    this.cameraTarget = new THREE.Vector3();
 
     this.raycaster = new THREE.Raycaster();
     this.pointer = new THREE.Vector2();
@@ -59,8 +61,8 @@ export class PlaneController {
     // direção as coordenas de tela do mouse
     if (!CONFIG.debug) {
       this.cameraTarget.copy(this.cameraInitialPos)
-      this.cameraTarget.x += this.pointer.x * 20;
-      this.cameraTarget.y += this.pointer.y * 5;
+      this.cameraTarget.x += this.pointer.x * 50;
+      this.cameraTarget.y += this.pointer.y * 25;
 
       // translação da camera
       this.camera.position.lerp(this.cameraTarget, dt * 20);
@@ -70,8 +72,11 @@ export class PlaneController {
     }
 
     // translação e rotação do objeto
-    this.obj.position.lerp(ray.point, dt * 10)
+    this.obj.position.lerp(ray.point, dt * 5)
     this.obj.quaternion.slerp(this.quaternion, dt * 10);
+    
+    this.target.position.copy(this.obj.position);
+    this.target.quaternion.copy(this.obj.quaternion);
 
     if (CONFIG.debug)
       this.p.innerText =
