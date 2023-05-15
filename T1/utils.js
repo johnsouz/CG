@@ -20,15 +20,18 @@ export const CONFIG = {
   treeDistribution: 120,
   treeScaleMin: 1.8,
   treeScaleMax: 2,
-
+  
   planeCount: 14,
   planeWidth: 150,
   planeHeight: 100,
   planeVerticalOffset: -50,
-
+  
   airplaneOffset: 175,
   raycastPlaneOffset: new Vector3(0, 0, -100),
-  targetOffset: new Vector3(0, 0, -100)
+  targetOffset: new Vector3(0, 0, -100),
+  
+  turretCount: 5,
+  turretDistribution: 60,
 };
 
 window.addEventListener('keyup', ev => {

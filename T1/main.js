@@ -5,17 +5,15 @@ import {
   initRenderer,
   initCamera,
   onWindowResize,
-  createGroundPlaneWired,
 } from "../libs/util/util.js";
 
 import { Sky } from '../assets/shaders/Sky.js';
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 
 import { CONFIG } from './utils.js';
-import { createGround, createTree, createCuboid, importAirplane } from './meshGenerators.js';
+import { createGround, createTree, createCuboid, importTurret } from './meshGenerators.js';
 import { Translater, opacityFog } from './Translater.js';
 import { PlaneController } from './PlaneController.js';
-import { setDefaultMaterial } from '../libs/util/util.js';
 
 // Create main scene
 let scene = new THREE.Scene();
@@ -122,6 +120,19 @@ for (let i = 0; i <= CONFIG.treeCount; ++i) {
   tree.position.z = MathUtils.randInt(-1200, 200);
 
   let translater = new Translater(Z, tree, 1400, opacityFog)
+  translater.startPoint.z = -1200
+
+  translaters.push(translater);
+}
+
+for (let i = 0; i <= CONFIG.turretCount; ++i) {
+  let turret = importTurret(scene);
+
+  turret.position.x = MathUtils.randFloatSpread(CONFIG.turretDistribution);
+  turret.position.y = CONFIG.treeVerticalOffset - 8;
+  turret.position.z = MathUtils.randInt(-1200, 200);
+
+  let translater = new Translater(Z, turret, 1400, opacityFog)
   translater.startPoint.z = -1200
 
   translaters.push(translater);

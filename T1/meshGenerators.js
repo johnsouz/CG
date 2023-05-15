@@ -180,3 +180,25 @@ export function importTargets(scene) {
     scene.add(object);
     return object;
 }
+
+export function importTurret(scene) {
+    let holder = new THREE.Object3D();
+    scene.add(holder);
+
+    const loader = new GLTFLoader();
+    loader.load('./airplane/turret_double.glb', loaded => {
+        /** @type {THREE.Group} */
+        const obj = loaded.scene;
+        obj.scale.setScalar(25);
+        
+        holder.add(obj);
+        holder.traverse(o => {
+            if (o.material)
+                o.material.transparent = true;
+            o.castShadow = true;
+            o.receiveShadow = true;
+        });
+    });
+
+    return holder
+}

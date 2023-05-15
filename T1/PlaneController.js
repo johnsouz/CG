@@ -122,7 +122,7 @@ export class PlaneController {
     // sendo que o objeto está a CONFIG.airplaneOffset unidades atrás do alvo
     this.objectPositionTarget.copy(this.target.position);
     this.objectPositionTarget.z += CONFIG.airplaneOffset;
-    this.object.position.lerp(this.objectPositionTarget, dt * 2)
+    this.object.position.lerp(this.objectPositionTarget, dt)
 
     // o vetor unitario da direção objeto/target
     this.direction
