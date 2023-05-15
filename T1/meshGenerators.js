@@ -156,10 +156,27 @@ export function createCuboid(sizeX, sizeY, sizeZ) {
 }
 
 export function importTargets(scene) {
-    let material = new THREE.SpriteMaterial({
-        map: new THREE.TextureLoader().load('./airplane/crosshairBack.png')
+
+    let sightBack = new THREE.Sprite();
+    sightBack.scale.set(12, 12, 1);
+    sightBack.renderOrder = 1;
+
+    let sightFront = sightBack.clone();
+    sightFront.position.z += -50;
+
+    sightBack.material = new THREE.SpriteMaterial({
+        map: new THREE.TextureLoader().load('./airplane/crosshairBack.png'),
+        color: 'lightgreen',
+        depthTest: false
     });
-    let sprite = new THREE.Sprite(material);
-    scene.add(sprite);
-    return sprite
+
+    sightFront.material = new THREE.SpriteMaterial({
+        map: new THREE.TextureLoader().load('./airplane/crosshairFront.png'),
+        color: 'lightgreen',
+        depthTest: false
+    });
+
+    let object = new THREE.Object3D().add(sightBack, sightFront);
+    scene.add(object);
+    return object;
 }
