@@ -154,3 +154,12 @@ export function createCuboid(sizeX, sizeY, sizeZ) {
 
     return mesh;
 }
+
+export function importTargets(scene) {
+    let material = new THREE.SpriteMaterial({
+        map: new THREE.TextureLoader().load('./airplane/crosshairBack.png')
+    });
+    let sprite = new THREE.Sprite(material);
+    scene.add(sprite);
+    return sprite
+}

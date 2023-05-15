@@ -41,7 +41,8 @@ light.shadow.camera.top = 100
 light.shadow.camera.bottom = -100
 light.shadow.camera.far = 2000
 
-scene.add(light, ambient, light.target);
+let shadowMapHelper = new THREE.CameraHelper(light.shadow.camera)
+scene.add(light, ambient, light.target, shadowMapHelper);
 
 // https://threejs.org/examples/webgl_shaders_sky.html
 let sky = new Sky();
@@ -52,20 +53,7 @@ sky.material.uniforms['sunPosition'].value.setFromSphericalCoords(1, 0.4 * Math.
 // Listen window size changes
 window.addEventListener('resize', ev => onWindowResize(camera, renderer));
 
-let plane = importAirplane(scene);
-let raycastPlane = createGroundPlaneWired(200, 200);
-raycastPlane.rotateX(Math.PI / 2);
-raycastPlane.position.z = CONFIG.raycastplaneOffset;
-raycastPlane.visible = CONFIG.debug;
-raycastPlane.material.transparent = true;
-raycastPlane.material.opacity = 0.2;
-
-let shadowMapHelper = new THREE.CameraHelper(light.shadow.camera)
-let target = new THREE.Mesh(new THREE.SphereGeometry(1), setDefaultMaterial('purple'))
-
-scene.add(plane, raycastPlane, shadowMapHelper, target);
-
-let planeController = new PlaneController(plane, camera, target, raycastPlane);
+let planeController = new PlaneController(scene, camera);
 let orbitController = new OrbitControls(camera, renderer.domElement);
 
 window.addEventListener('blur', _ => CONFIG.simulationOn = false);
@@ -73,10 +61,9 @@ window.addEventListener('focus', _ => CONFIG.simulationOn = true);
 window.addEventListener('debug', _ => {
   orbitController.enabled = CONFIG.debug;
   shadowMapHelper.visible = CONFIG.debug;
-  raycastPlane.visible = CONFIG.debug;
-})
+  planeController.raycastPlane.visible = CONFIG.debug;
+});
 window.addEventListener('keydown', ev => {
-
   switch (ev.key) {
     case 'Escape':
       CONFIG.simulationOn = !CONFIG.simulationOn;
@@ -97,8 +84,7 @@ window.addEventListener('keydown', ev => {
       CONFIG.speed = 500;
       break;
   }
-
-  document.body.style.cursor = !CONFIG.simulationOn ? 'auto' : 'none';
+  document.body.style.cursor = CONFIG.simulationOn ? 'none' : 'auto';
 })
 
 
