@@ -189,11 +189,10 @@ export function importTurret(scene) {
     loader.load('./airplane/turret_double.glb', loaded => {
         /** @type {THREE.Group} */
         const obj = loaded.scene;
-        obj.scale.setScalar(25);
-        
+        obj.scale.setScalar(30);
         holder.add(obj);
         holder.traverse(o => {
-            if (o.material)
+            if (o.isMesh)
                 o.material.transparent = true;
             o.castShadow = true;
             o.receiveShadow = true;
@@ -201,4 +200,12 @@ export function importTurret(scene) {
     });
 
     return holder
+}
+
+const bulletGeometry = new THREE.SphereGeometry(2);
+const bulletMaterial = new THREE.MeshBasicMaterial({color: 'rebeccapurple'});
+export function createBullet(initialPos) {
+    let bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+    bullet.position.copy(initialPos)
+    return bullet;
 }

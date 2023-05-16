@@ -1,12 +1,12 @@
-import { Vector3 } from "three";
+import { Vector3, Box3 } from "three";
 
 export const CONFIG = {
   simulationOn: true,
   debug: true,
-  
+
   cameraPos: new Vector3(0, 0, 50),
   cameraFov: 45,
-  
+
   treePosFrom: -1000,
   treePosTo: 100,
   treeVerticalOffset: -40,
@@ -20,18 +20,22 @@ export const CONFIG = {
   treeDistribution: 120,
   treeScaleMin: 1.8,
   treeScaleMax: 2,
-  
+
   planeCount: 14,
   planeWidth: 150,
   planeHeight: 100,
   planeVerticalOffset: -50,
-  
+
   airplaneOffset: 175,
   raycastPlaneOffset: new Vector3(0, 0, -100),
   targetOffset: new Vector3(0, 0, -100),
-  
+
   turretCount: 5,
   turretDistribution: 60,
+  turretVerticalOffset: -50,
+
+  bulletBoundingBox: new Box3(new Vector3(-100, -50, -1000), new Vector3(100, 50, 1000)),
+  bulletSpeed: 1000
 };
 
 window.addEventListener('keyup', ev => {

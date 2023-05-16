@@ -124,12 +124,15 @@ for (let i = 0; i <= CONFIG.treeCount; ++i) {
 
   translaters.push(translater);
 }
+/** @type {Object.<string, THREE.Object3D>} */
+let turrets = {};
 
 for (let i = 0; i <= CONFIG.turretCount; ++i) {
   let turret = importTurret(scene);
+  turrets[turret.uuid] = turret;
 
   turret.position.x = MathUtils.randFloatSpread(CONFIG.turretDistribution);
-  turret.position.y = CONFIG.treeVerticalOffset - 8;
+  turret.position.y = CONFIG.turretVerticalOffset;
   turret.position.z = MathUtils.randInt(-1200, 200);
 
   let translater = new Translater(Z, turret, 1400, opacityFog)
@@ -143,12 +146,54 @@ scene.add(...translaters.map(a => a.object));
 function render() {
   requestAnimationFrame(render);
   let dt = clock.getDelta();
+  
   if (CONFIG.simulationOn) {
+    // planos, cubos e arvores
     translaters.forEach(obj => obj.update(dt));
+    
+    // avião
     planeController.update(dt)
 
+    // animação na mudança de velocidade
     camera.fov = MathUtils.lerp(camera.fov, CONFIG.cameraFov, 10 * dt)
     camera.updateProjectionMatrix();
+
+    // lógica das colisões projétil-torretas
+    let turretBB = new THREE.Box3();
+    for (let turret of Object.values(turrets)) {
+
+      // se a torreta estivar marcada como 'morta', acontece a animação
+      if (turret.userData['dead']) {
+
+        turret.position.y += -100 * dt;
+
+        // a torreta 'resetará' quando a desaparecer por completo debaixo do chão
+        if (turret.position.y < -75) {
+          turret.userData['dead'] = false;
+
+          turret.position.x = MathUtils.randFloatSpread(CONFIG.turretDistribution);
+          turret.position.y = CONFIG.turretVerticalOffset;
+          turret.position.z += MathUtils.randFloat(-1000, -1200);
+        }
+
+        // não a nescessidade de checar colisões com essa torreta
+        continue;
+      }
+
+      // calcula a AABB
+      turretBB.setFromObject(turret)
+
+      // checa todos os projéteis se estão dentro de alguma torreta
+      // se sim, destroi o projetil e marca a torreta como 'morta'
+      for (let [bulletKey, bullet] of Object.entries(planeController.bullets)) {
+        if (turretBB.containsPoint(bullet.position)) {
+          scene.remove(planeController.bullets[bulletKey]);
+          delete planeController.bullets[bulletKey];
+
+          turret.userData['dead'] = true;
+        }
+      }
+    }
   }
 
   renderer.render(scene, camera) // Render scene

@@ -1,12 +1,13 @@
 import * as THREE from 'three';
 import { MathUtils } from 'three';
 import { CONFIG, sprintProps } from './utils.js';
-import { importAirplane, importTargets } from './meshGenerators.js';
+import { createBullet, importAirplane, importTargets } from './meshGenerators.js';
 import { createGroundPlane } from '../libs/util/util.js';
 
 export class PlaneController {
 
   p = document.querySelector('#coords');
+  raycaster = new THREE.Raycaster();
 
   /**
    * @param {THREE.Scene} scene A Scene atual
@@ -30,6 +31,9 @@ export class PlaneController {
 
     /** o objeto que terá sua posição controlada */
     this.object = importAirplane(scene);
+    this.object.position.x = camera.position.x;
+    this.object.position.y = camera.position.z;
+    this.object.position.z = -(CONFIG.raycastPlaneOffset.z + CONFIG.airplaneOffset);
 
     /** a mira, que é o ray interceptado no plano */
     this.target = importTargets(scene);
@@ -47,8 +51,6 @@ export class PlaneController {
     /** vetor unitario da direção objeto/target */
     this.direction = new THREE.Vector3();
 
-    this.raycaster = new THREE.Raycaster();
-    
     /** posição atual do ponteiro em coordenadas de tela normalizadas */
     this.pointer = new THREE.Vector2();
     /** a diferença das coordenadas do target desde o ultimo frame */
@@ -60,6 +62,13 @@ export class PlaneController {
     this.euler = new THREE.Euler(0, Math.PI, 0);
     this.quaternion = new THREE.Quaternion();
 
+    /** guarda todos os projeteis na cena
+     * @type {Object.<string, THREE.Mesh>} */
+    this.bullets = {};
+
+    /** determina se neste frame vai haver disparo */
+    this.willShoot = false;
+
     scene.add(raycastPlane, this.object, this.target);
 
     /**
@@ -69,6 +78,7 @@ export class PlaneController {
     this.raycastIntersections = [];
 
     window.addEventListener('pointermove', e => this.__pointermoveCallback(e));
+    window.addEventListener('click', e => this.__clickCallback(e));
   }
 
   /** Chamado toda vez em que o mouse é movido
@@ -78,18 +88,26 @@ export class PlaneController {
     this.pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
   }
 
-  /**
-   * @param {number} dt deltaTime
-  */
+  /** @param {MouseEvent} e */
+  __clickCallback(e) {
+    if (CONFIG.simulationOn)
+      this.willShoot = true;
+  }
+
+  /** @param {number} dt deltaTime */
   update(dt) {
+
+    if (!CONFIG.simulationOn)
+      console.log("fuckness")
 
     // setup do raycaster a partir da camera
     this.raycastIntersections.length = 0;
     this.raycaster.setFromCamera(this.pointer, this.camera);
     this.raycaster.intersectObject(this.raycastPlane, false, this.raycastIntersections);
 
-    // interseção do raycaster, caso não exista, é a posição do target
-    let ray = this.raycastIntersections[0] || { point: this.target.position };
+    // interseção do raycaster, caso não exista, retorne
+    let ray = this.raycastIntersections[0];
+    if (!ray) return;
 
     // delta da posição desde o último frame
     this.moveDelta.subVectors(ray.point, this.target.position);
@@ -109,10 +127,9 @@ export class PlaneController {
     }
 
     // Posição do target a ser interpolada, sem alterar o valor no raycast
-    this.offsettedTarget
-      .copy(ray.point)
-      .add(CONFIG.targetOffset);
-    
+    this.offsettedTarget.copy(ray.point);
+    this.offsettedTarget.z = CONFIG.raycastPlaneOffset.z + CONFIG.targetOffset.z;
+
     // translação do alvo para o ponto de interseção
     this.target.position.lerp(this.offsettedTarget, dt * 10);
     this.target.position.x = MathUtils.clamp(this.target.position.x, -60, 60);
@@ -121,7 +138,7 @@ export class PlaneController {
     // translação e rotação do objeto e alvo,
     // sendo que o objeto está a CONFIG.airplaneOffset unidades atrás do alvo
     this.objectPositionTarget.copy(this.target.position);
-    this.objectPositionTarget.z += CONFIG.airplaneOffset;
+    this.objectPositionTarget.z = this.target.position.z + CONFIG.airplaneOffset;
     this.object.position.lerp(this.objectPositionTarget, dt)
 
     // o vetor unitario da direção objeto/target
@@ -140,10 +157,32 @@ export class PlaneController {
     // apontar as miras para o objeto
     this.target.lookAt(this.object.position);
 
+    // Atualização das posiçoes dos projeteis
+    for (let key in this.bullets) {
+      let bullet = this.bullets[key];
+      bullet.translateZ(CONFIG.bulletSpeed * dt);
+
+      if (CONFIG.bulletBoundingBox.containsPoint(bullet.position))
+        continue;
+
+      this.scene.remove(bullet);
+      delete this.bullets[key]
+    }
+
+    // Criação do projétil
+    if (this.willShoot) {
+      this.willShoot = false;
+
+      let bullet = createBullet(this.object.position)
+      bullet.lookAt(this.direction.clone().add(bullet.position));
+
+      this.scene.add(bullet)
+      this.bullets[bullet.uuid] = bullet;
+    }
+
     if (CONFIG.debug)
       this.p.innerText =
         sprintProps(this.object, ["position"]) +
-        sprintProps(this, ["euler", "quaternion", "moveDelta", "pointer"]) +
-        sprintProps(ray, ["point"], "ray.point");
+        sprintProps(this.target, ["position"])
   }
 }
