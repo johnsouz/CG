@@ -55,7 +55,6 @@ let planeController = new PlaneController(scene, camera);
 let orbitController = new OrbitControls(camera, renderer.domElement);
 
 window.addEventListener('blur', _ => CONFIG.simulationOn = false);
-window.addEventListener('focus', _ => CONFIG.simulationOn = true);
 window.addEventListener('debug', _ => {
   orbitController.enabled = CONFIG.debug;
   shadowMapHelper.visible = CONFIG.debug;

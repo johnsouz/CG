@@ -92,6 +92,11 @@ export class PlaneController {
   __clickCallback(e) {
     if (CONFIG.simulationOn)
       this.willShoot = true;
+    
+    if (!CONFIG.simulationOn && !CONFIG.debug) {
+      CONFIG.simulationOn = true;
+      document.body.style.cursor = 'none';
+    }
   }
 
   /** @param {number} dt deltaTime */
@@ -158,15 +163,16 @@ export class PlaneController {
     this.target.lookAt(this.object.position);
 
     // Atualização das posiçoes dos projeteis
-    for (let key in this.bullets) {
-      let bullet = this.bullets[key];
+    for (let [key, bullet] of Object.entries(this.bullets)) {
+
+      // avança o projétil
       bullet.translateZ(CONFIG.bulletSpeed * dt);
 
-      if (CONFIG.bulletBoundingBox.containsPoint(bullet.position))
-        continue;
-
-      this.scene.remove(bullet);
-      delete this.bullets[key]
+      // se o projetil estiver fora da AABB, é remova da cena
+      if (!CONFIG.bulletBoundingBox.containsPoint(bullet.position)) {
+        this.scene.remove(bullet);
+        delete this.bullets[key]
+      }
     }
 
     // Criação do projétil
