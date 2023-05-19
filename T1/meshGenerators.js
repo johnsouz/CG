@@ -151,9 +151,16 @@ export function createCuboid(sizeX, sizeY, sizeZ) {
     );
     mesh.material.transparent = true;
     mesh.receiveShadow = true;
+var geo = new THREE.EdgesGeometry( mesh.geometry ); // or WireframeGeometry
+var mat = new THREE.LineBasicMaterial( { color: 0xffffff,  linewidth: 80} );
 
+var wireframe = new THREE.LineSegments( geo, mat );
+wireframe.scale.set(1.005, 1, 1);
+mesh.add( wireframe );
     return mesh;
 }
+
+
 
 export function importTargets(scene) {
 
