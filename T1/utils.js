@@ -34,7 +34,7 @@ export const CONFIG = {
   turretDistribution: 60,
   turretVerticalOffset: -50,
 
-  bulletBoundingBox: new Box3(new Vector3(-100, -50, -1000), new Vector3(100, 50, 1000)),
+  bulletBoundingBox: new Box3(new Vector3(-100, -50, -1000), new Vector3(100, 50, 0)),
   bulletSpeed: 1000
 };
 

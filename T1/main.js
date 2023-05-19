@@ -19,13 +19,17 @@ import { PlaneController } from './PlaneController.js';
 let scene = new THREE.Scene();
 
 // Init a basic renderer
-let renderer = initRenderer();
-renderer.outputColorSpace = THREE.SRGBColorSpace;
+var renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
 
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMapSoft = true;
 renderer.shadowMap.width = 4096;
 renderer.shadowMap.height = 4096;
+
+document.getElementById("webgl-output").appendChild(renderer.domElement);
 
 let camera = initCamera(CONFIG.cameraPos); // Init camera in this position
 let light = new THREE.DirectionalLight('white', 1.2);
@@ -111,23 +115,8 @@ for (let i = 0; i < CONFIG.planeCount; ++i) {
   translaters.push(holderT);
 }
 
-// Criação das arvores
-for (let i = 0; i <= CONFIG.treeCount; ++i) {
-  let tree = createTree()
-  tree.material.transparent = true;
-
-  tree.position.x = MathUtils.randFloatSpread(CONFIG.treeDistribution);
-  tree.position.y = CONFIG.treeVerticalOffset;
-  tree.position.z = MathUtils.randInt(-1200, 200);
-
-  let translater = new Translater(Z, tree, 1400, opacityFog)
-  translater.startPoint.z = -1200
-
-  translaters.push(translater);
-}
 /** @type {Object.<string, THREE.Object3D>} */
 let turrets = {};
-
 
 // Criação das torretas
 for (let i = 0; i < CONFIG.turretCount; ++i) {
@@ -136,10 +125,40 @@ for (let i = 0; i < CONFIG.turretCount; ++i) {
 
   turret.position.x = MathUtils.randFloatSpread(CONFIG.turretDistribution);
   turret.position.y = CONFIG.turretVerticalOffset;
-  turret.position.z = MathUtils.randInt(-1200, 200);
+  turret.position.z = -300 * i;
 
   let translater = new Translater(Z, turret, 1400, opacityFog)
   translater.startPoint.z = -1200;
+
+  translaters.push(translater);
+}
+
+// Criação das arvores
+let trees = [];
+let treeTurretDistance = new THREE.Vector3();
+for (let i = 0; i <= CONFIG.treeCount; ++i) {
+  let tree = createTree()
+  trees.push(tree);
+  tree.material.transparent = true;
+
+  for (;;) {
+    tree.position.x = MathUtils.randFloatSpread(CONFIG.treeDistribution);
+    tree.position.y = CONFIG.treeVerticalOffset;
+    tree.position.z = MathUtils.randInt(-1200, 200);
+
+    let clipping = false;
+    for (let turret of Object.values(turrets)) {
+      let dist = treeTurretDistance.subVectors(turret.position, tree.position).length();
+      if (dist < 20)
+        clipping = true;
+    }
+
+    if (!clipping)
+      break;
+  }
+
+  let translater = new Translater(Z, tree, 1400, opacityFog)
+  translater.startPoint.z = -1200
 
   translaters.push(translater);
 }
@@ -149,12 +168,12 @@ scene.add(...translaters.map(a => a.object));
 function render() {
   requestAnimationFrame(render);
   let dt = clock.getDelta();
-  dt = MathUtils.clamp(dt, 0, 1/60);
-  
+  dt = MathUtils.clamp(dt, 0, 1 / 60);
+
   if (CONFIG.simulationOn) {
     // planos, cubos e arvores
     translaters.forEach(obj => obj.update(dt));
-    
+
     // avião
     planeController.update(dt)
 
@@ -175,9 +194,8 @@ function render() {
         if (turret.position.y < -75) {
           turret.userData['dead'] = false;
 
-          turret.position.x = MathUtils.randFloatSpread(CONFIG.turretDistribution);
           turret.position.y = CONFIG.turretVerticalOffset;
-          turret.position.z += MathUtils.randFloat(-1000, -1200);
+          turret.position.z += -1400;
         }
 
         // não a nescessidade de checar colisões com essa torreta
