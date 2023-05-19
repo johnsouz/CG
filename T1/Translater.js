@@ -4,10 +4,10 @@ import { CONFIG } from './utils.js';
 
 export class Translater {
   /**
-   * @param {THREE.Vector3} direction 
-   * @param {THREE.Object3D} object 
-   * @param {number} distance
-   * @param {?function(this: Translater): void} customUpdate
+   * @param {THREE.Vector3} direction vetor unitario da direção
+   * @param {THREE.Object3D} object o objeto a ser movido
+   * @param {number} distance a distancia maxima que o objeto percorre
+   * @param {?function(this: Translater): void} customUpdate função chama a cada update
    * @param {?THREE.Vector3} startPoint 
    */
   constructor(direction, object, distance, customUpdate, startPoint) {

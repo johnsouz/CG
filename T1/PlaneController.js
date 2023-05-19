@@ -23,6 +23,8 @@ export class PlaneController {
     raycastPlane.visible = CONFIG.debug;
     raycastPlane.material.transparent = true;
     raycastPlane.material.opacity = 0.2;
+    raycastPlane.material.depthWrite = false;
+    raycastPlane.renderOrder = 2;
     this.raycastPlane = raycastPlane;
 
     // a cena atual e sua camera
@@ -101,9 +103,6 @@ export class PlaneController {
 
   /** @param {number} dt deltaTime */
   update(dt) {
-
-    if (!CONFIG.simulationOn)
-      console.log("fuckness")
 
     // setup do raycaster a partir da camera
     this.raycastIntersections.length = 0;
@@ -186,9 +185,9 @@ export class PlaneController {
       this.bullets[bullet.uuid] = bullet;
     }
 
-    if (CONFIG.debug)
-      this.p.innerText =
-        sprintProps(this.object, ["position"]) +
-        sprintProps(this.target, ["position"])
+    // if (CONFIG.debug)
+    //   this.p.innerText =
+    //     sprintProps(this.object, ["position"]) +
+    //     sprintProps(this.target, ["position"])
   }
 }

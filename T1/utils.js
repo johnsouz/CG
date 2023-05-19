@@ -30,7 +30,7 @@ export const CONFIG = {
   raycastPlaneOffset: new Vector3(0, 0, -100),
   targetOffset: new Vector3(0, 0, -100),
 
-  turretCount: 5,
+  turretCount: 3,
   turretDistribution: 60,
   turretVerticalOffset: -50,
 

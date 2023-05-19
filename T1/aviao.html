@@ -13,14 +13,20 @@
         border: 0;
         vertical-align: baseline;
       }
-      #coords {
+      .info {
         font-size: x-large;
         color: white;
         position: absolute;
-        left: 0.5em;
-        top: 0.5em;
         font-family: 'consolas';
         transition: opacity 200ms;
+      }
+      .debugInfo {
+        left: 0.5em;
+        top: 0.5em;
+      }
+      .tutorial {
+        right: 0.5em;
+        top: 0.5em;
       }
     </style>
   </head>
@@ -36,7 +42,8 @@
     <script type="module" src="main.js"></script>
   </div>
 
-  <pre id="coords"></pre>
+  <pre id="coords" class="info debugInfo"></pre>
+  <pre class="info tutorial"> [ESC] Pause | [D] Debug</pre>
 </body>
 
 </html>

@@ -90,6 +90,7 @@ window.addEventListener('keydown', ev => {
 let translaters = []
 const Z = new THREE.Vector3(0, 0, 1);
 
+// Criação dos planos e cubos
 for (let i = 0; i < CONFIG.planeCount; ++i) {
   let ground = createGround(CONFIG.planeWidth, CONFIG.planeHeight, CONFIG.planeVerticalOffset);
   ground.material.transparent = true;
@@ -110,6 +111,7 @@ for (let i = 0; i < CONFIG.planeCount; ++i) {
   translaters.push(holderT);
 }
 
+// Criação das arvores
 for (let i = 0; i <= CONFIG.treeCount; ++i) {
   let tree = createTree()
   tree.material.transparent = true;
@@ -126,7 +128,9 @@ for (let i = 0; i <= CONFIG.treeCount; ++i) {
 /** @type {Object.<string, THREE.Object3D>} */
 let turrets = {};
 
-for (let i = 0; i <= CONFIG.turretCount; ++i) {
+
+// Criação das torretas
+for (let i = 0; i < CONFIG.turretCount; ++i) {
   let turret = importTurret(scene);
   turrets[turret.uuid] = turret;
 
@@ -135,7 +139,7 @@ for (let i = 0; i <= CONFIG.turretCount; ++i) {
   turret.position.z = MathUtils.randInt(-1200, 200);
 
   let translater = new Translater(Z, turret, 1400, opacityFog)
-  translater.startPoint.z = -1200
+  translater.startPoint.z = -1200;
 
   translaters.push(translater);
 }
@@ -145,6 +149,7 @@ scene.add(...translaters.map(a => a.object));
 function render() {
   requestAnimationFrame(render);
   let dt = clock.getDelta();
+  dt = MathUtils.clamp(dt, 0, 1/60);
   
   if (CONFIG.simulationOn) {
     // planos, cubos e arvores

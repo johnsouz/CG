@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { createGroundPlaneWired, setDefaultMaterial } from '../libs/util/util.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
 
-
 export function createAirplane() {
     const geometry = new THREE.CylinderGeometry(2, 1.2, 25, 32);
     let yellowMaterial = setDefaultMaterial("yellow");
@@ -151,12 +150,13 @@ export function createCuboid(sizeX, sizeY, sizeZ) {
     );
     mesh.material.transparent = true;
     mesh.receiveShadow = true;
-var geo = new THREE.EdgesGeometry( mesh.geometry ); // or WireframeGeometry
-var mat = new THREE.LineBasicMaterial( { color: 0xffffff,  linewidth: 80} );
 
-var wireframe = new THREE.LineSegments( geo, mat );
-wireframe.scale.set(1.005, 1, 1);
-mesh.add( wireframe );
+    let geo = new THREE.EdgesGeometry(mesh.geometry); // or WireframeGeometry
+    let mat = new THREE.LineBasicMaterial({ color: 'green', linewidth: 200,  });
+
+    let wireframe = new THREE.LineSegments(geo, mat);
+    wireframe.scale.setScalar(1.005)
+    mesh.add(wireframe);
     return mesh;
 }
 
@@ -210,7 +210,7 @@ export function importTurret(scene) {
 }
 
 const bulletGeometry = new THREE.SphereGeometry(2);
-const bulletMaterial = new THREE.MeshBasicMaterial({color: 'rebeccapurple'});
+const bulletMaterial = new THREE.MeshBasicMaterial({ color: 'rebeccapurple' });
 export function createBullet(initialPos) {
     let bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
     bullet.position.copy(initialPos)
