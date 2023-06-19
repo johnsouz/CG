@@ -64,10 +64,24 @@ window.addEventListener('debug', _ => {
   shadowMapHelper.visible = CONFIG.debug;
   planeController.raycastPlane.visible = CONFIG.debug;
 });
+
+//configuração de som
+const audio = document.querySelector('#background-music');
+audio.play();
+
+
+
 window.addEventListener('keydown', ev => {
   switch (ev.key) {
     case 'Escape':
-      CONFIG.simulationOn = !CONFIG.simulationOn;
+      if (CONFIG.simulationOn)
+        audio.volume = 0.1;
+    
+      else
+        audio.volume = 0.4;
+    CONFIG.simulationOn = !CONFIG.simulationOn;
+      
+
       break;
 
     case '1':
@@ -84,6 +98,14 @@ window.addEventListener('keydown', ev => {
       CONFIG.cameraFov = 55;
       CONFIG.speed = 500;
       break;
+
+      case 's':
+        if(audio.paused)
+        audio.play();
+        else
+        audio.pause();
+        break;
+
   }
   document.body.style.cursor = CONFIG.simulationOn ? 'none' : 'auto';
 })
@@ -173,7 +195,7 @@ function render() {
   if (CONFIG.simulationOn) {
     // planos, cubos e arvores
     translaters.forEach(obj => obj.update(dt));
-
+    audio.volume= 0.4;
     // avião
     planeController.update(dt)
 
