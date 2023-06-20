@@ -92,9 +92,35 @@ export class PlaneController {
 
   /** @param {MouseEvent} e */
   __clickCallback(e) {
-    if (CONFIG.simulationOn)
+    if (CONFIG.simulationOn){
       this.willShoot = true;
-    
+      // Cria um contexto de áudio
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+// Carrega o arquivo de áudio do efeito sonoro
+const audioURL = 'X-wing blaster.mp3';
+const request = new XMLHttpRequest();
+request.open('GET', audioURL, true);
+request.responseType = 'arraybuffer';
+
+request.onload = function() {
+  // Decodifica o arquivo de áudio
+  audioContext.decodeAudioData(request.response, function(buffer) {
+    // Cria um nó de áudio para o efeito sonoro
+    const disparoNave = audioContext.createBufferSource();
+    disparoNave.buffer = buffer;
+
+    // Conecta o nó de áudio ao destino de áudio (saída)
+    disparoNave.connect(audioContext.destination);
+
+    // Toca o efeito sonoro
+    disparoNave.start(0);
+
+  });
+};
+
+      request.send();
+    }
     if (!CONFIG.simulationOn && !CONFIG.debug) {
       CONFIG.simulationOn = true;
       document.body.style.cursor = 'none';
