@@ -65,11 +65,9 @@ window.addEventListener('debug', _ => {
   planeController.raycastPlane.visible = CONFIG.debug;
 });
 
-//configuração de som
+//configuração de som, começando com trilha sonora
 const audio = document.querySelector('#background-music');
 audio.play();
-
-
 
 window.addEventListener('keydown', ev => {
   switch (ev.key) {
