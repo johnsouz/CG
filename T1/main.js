@@ -68,7 +68,7 @@ window.addEventListener('debug', _ => {
 //configuração de som, começando com trilha sonora
 const audio = document.querySelector('#background-music');
 audio.play();
-
+audio.volume = 0.4;
 window.addEventListener('keydown', ev => {
   switch (ev.key) {
     case 'Escape':
