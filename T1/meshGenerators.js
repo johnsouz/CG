@@ -129,13 +129,27 @@ export function createTree() {
  * @param {number} yOffset
  * @returns {THREE.Mesh}
  */
+
 export function createGround(width, height, yOffset) {
-    let mesh = createGroundPlaneWired(width, height, 15, 5, 1, 'darkgreen', 'green');
+    let textureLoader = new THREE.TextureLoader();
+    let texture = textureLoader.load('death star.jpg');
+    
+    // Configuração do repeat wrapping
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(width / 50, height / 50); // Ajuste o valor do repetidor conforme necessário
+
+    let material = new THREE.MeshBasicMaterial({ map: texture });
+
+    let mesh = createGroundPlaneWired(width, height, 15, 5, 0, 'gray', 'gray');
+    mesh.material = material;
     mesh.material.transparent = true;
     mesh.traverse(obj => { if (obj.isLine) obj.material.transparent = true });
     mesh.position.set(0, yOffset, 0);
     return mesh;
 }
+
+
 
 /**
  * @param {number} sizeX 
