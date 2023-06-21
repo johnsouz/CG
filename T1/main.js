@@ -152,7 +152,7 @@ for (let i = 0; i < CONFIG.turretCount; ++i) {
 
   translaters.push(translater);
 }
-
+/*
 // Criação das arvores
 let trees = [];
 let treeTurretDistance = new THREE.Vector3();
@@ -182,7 +182,7 @@ for (let i = 0; i <= CONFIG.treeCount; ++i) {
 
   translaters.push(translater);
 }
-
+*/
 scene.add(...translaters.map(a => a.object));
 
 function render() {
