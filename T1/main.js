@@ -2,18 +2,17 @@ import * as THREE from 'three';
 import { MathUtils } from 'three';
 
 import {
-  initRenderer,
   initCamera,
   onWindowResize,
 } from "../libs/util/util.js";
 
-import { Sky } from '../assets/shaders/Sky.js';
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 
 import { CONFIG } from './utils.js';
-import { createGround, createTree, createCuboid, importTurret } from './meshGenerators.js';
+import { createGround, createCuboid, importTurret } from './meshGenerators.js';
 import { Translater, opacityFog } from './Translater.js';
 import { PlaneController } from './PlaneController.js';
+import { metal2 } from './textures.js';
 
 // Create main scene
 let scene = new THREE.Scene();
@@ -21,7 +20,6 @@ let scene = new THREE.Scene();
 // Init a basic renderer
 var renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -32,7 +30,7 @@ renderer.shadowMap.height = 4096;
 document.getElementById("webgl-output").appendChild(renderer.domElement);
 
 let camera = initCamera(CONFIG.cameraPos); // Init camera in this position
-let light = new THREE.DirectionalLight('white', 1.2);
+let light = new THREE.DirectionalLight('white', 1.6);
 let ambient = new THREE.AmbientLight('white', 0.2);
 light.position.set(75, 50, 0);
 light.target.position.z = -200;
@@ -44,19 +42,16 @@ light.shadow.camera.bottom = -100
 light.shadow.camera.far = 2000
 
 let shadowMapHelper = new THREE.CameraHelper(light.shadow.camera)
+shadowMapHelper.visible = CONFIG.debug;
 scene.add(light, ambient, light.target, shadowMapHelper);
 
-// https://threejs.org/examples/webgl_shaders_sky.html
-let sky = new Sky();
-sky.scale.setScalar(1000);
-scene.add(sky);
-sky.material.uniforms['sunPosition'].value.setFromSphericalCoords(1, 0.4 * Math.PI, 0);
-
 // Listen window size changes
-window.addEventListener('resize', ev => onWindowResize(camera, renderer));
+window.addEventListener('resize', _ => onWindowResize(camera, renderer));
 
 let planeController = new PlaneController(scene, camera);
 let orbitController = new OrbitControls(camera, renderer.domElement);
+orbitController.enabled = CONFIG.debug;
+document.body.style.cursor = CONFIG.debug ? 'auto' : 'none';
 
 window.addEventListener('blur', _ => CONFIG.simulationOn = false);
 window.addEventListener('debug', _ => {
@@ -67,19 +62,15 @@ window.addEventListener('debug', _ => {
 
 //configuração de som, começando com trilha sonora
 const audio = document.querySelector('#background-music');
-audio.play();
 audio.volume = 0.4;
 window.addEventListener('keydown', ev => {
   switch (ev.key) {
     case 'Escape':
       if (CONFIG.simulationOn)
         audio.volume = 0.1;
-    
       else
         audio.volume = 0.4;
-    CONFIG.simulationOn = !CONFIG.simulationOn;
-      
-
+      CONFIG.simulationOn = !CONFIG.simulationOn;
       break;
 
     case '1':
@@ -97,12 +88,12 @@ window.addEventListener('keydown', ev => {
       CONFIG.speed = 500;
       break;
 
-      case 's':
-        if(audio.paused)
+    case 's':
+      if (audio.paused)
         audio.play();
-        else
+      else
         audio.pause();
-        break;
+      break;
 
   }
   document.body.style.cursor = CONFIG.simulationOn ? 'none' : 'auto';
@@ -119,8 +110,9 @@ for (let i = 0; i < CONFIG.planeCount; ++i) {
   let ground = createGround(CONFIG.planeWidth, CONFIG.planeHeight, CONFIG.planeVerticalOffset);
   ground.material.transparent = true;
 
-  let boxLeft = createCuboid(100, 100, 100)
+  let boxLeft = createCuboid(100, 50, 100, metal2.clone())
   boxLeft.position.x += CONFIG.planeWidth / 2 + 50;
+  boxLeft.position.y -= 25;
 
   let boxRight = boxLeft.clone();
   boxLeft.position.x -= CONFIG.planeWidth + 100;
@@ -152,6 +144,7 @@ for (let i = 0; i < CONFIG.turretCount; ++i) {
 
   translaters.push(translater);
 }
+
 /*
 // Criação das arvores
 let trees = [];
@@ -183,6 +176,7 @@ for (let i = 0; i <= CONFIG.treeCount; ++i) {
   translaters.push(translater);
 }
 */
+
 scene.add(...translaters.map(a => a.object));
 
 function render() {
@@ -193,7 +187,7 @@ function render() {
   if (CONFIG.simulationOn) {
     // planos, cubos e arvores
     translaters.forEach(obj => obj.update(dt));
-    audio.volume= 0.4;
+    audio.volume = 0.4;
     // avião
     planeController.update(dt)
 

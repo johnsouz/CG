@@ -1,8 +1,8 @@
-import { Vector3, Box3 } from "three";
+import { Vector3, Box3, TextureLoader} from "three";
 
 export const CONFIG = {
   simulationOn: true,
-  debug: true,
+  debug: false,
 
   cameraPos: new Vector3(0, 0, 50),
   cameraFov: 45,
@@ -37,6 +37,8 @@ export const CONFIG = {
   bulletBoundingBox: new Box3(new Vector3(-100, -50, -1000), new Vector3(100, 50, 0)),
   bulletSpeed: 1000
 };
+
+export let TexLoader = new TextureLoader();
 
 window.addEventListener('keyup', ev => {
   if (ev.key != 'd')

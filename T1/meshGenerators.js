@@ -1,6 +1,7 @@
 import * as THREE from 'three';
-import { createGroundPlaneWired, setDefaultMaterial } from '../libs/util/util.js';
+import { createGroundPlane, createGroundPlaneWired, setDefaultMaterial } from '../libs/util/util.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
+import { TexLoader } from './utils.js';
 
 export function createAirplane() {
     const geometry = new THREE.CylinderGeometry(2, 1.2, 25, 32);
@@ -129,52 +130,42 @@ export function createTree() {
  * @param {number} yOffset
  * @returns {THREE.Mesh}
  */
-
 export function createGround(width, height, yOffset) {
-    let textureLoader = new THREE.TextureLoader();
-    let texture = textureLoader.load('death star.jpg');
-    
+    let texture = TexLoader.load('death star.jpg');
+
     // Configuração do repeat wrapping
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(width / 50, height / 50); // Ajuste o valor do repetidor conforme necessário
+    texture.anisotropy = 8;
 
-    let material = new THREE.MeshBasicMaterial({ map: texture });
-
-    let mesh = createGroundPlaneWired(width, height, 15, 5, 0, 'gray', 'gray');
-    mesh.material = material;
+    let mesh = createGroundPlane(width, height, 1, 1, 0);
+    mesh.rotation.x = -Math.PI/2;
+    mesh.material = new THREE.MeshStandardMaterial({ map: texture });
     mesh.material.transparent = true;
+    mesh.receiveShadow = true;
+
     mesh.traverse(obj => { if (obj.isLine) obj.material.transparent = true });
     mesh.position.set(0, yOffset, 0);
     return mesh;
 }
 
-
-
 /**
  * @param {number} sizeX 
  * @param {number} sizeY 
  * @param {number} sizeZ 
+ * @param {THREE.MeshStandartMaterial} material
  * @returns {THREE.Mesh}
  */
-export function createCuboid(sizeX, sizeY, sizeZ) {
+export function createCuboid(sizeX, sizeY, sizeZ, material) {
     let mesh = new THREE.Mesh(
         new THREE.BoxGeometry(sizeX, sizeY, sizeZ),
-        setDefaultMaterial('darkgreen')
+        material || setDefaultMaterial('darkgreen')
     );
     mesh.material.transparent = true;
     mesh.receiveShadow = true;
-
-    let geo = new THREE.EdgesGeometry(mesh.geometry); // or WireframeGeometry
-    let mat = new THREE.LineBasicMaterial({ color: 'green', linewidth: 200,  });
-
-    let wireframe = new THREE.LineSegments(geo, mat);
-    wireframe.scale.setScalar(1.005)
-    mesh.add(wireframe);
     return mesh;
 }
-
-
 
 export function importTargets(scene) {
 
