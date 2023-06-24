@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { createGroundPlane, createGroundPlaneWired, setDefaultMaterial } from '../libs/util/util.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
 import { TexLoader } from './utils.js';
+import { metal2 } from './textures.js';
 
 export function createAirplane() {
     const geometry = new THREE.CylinderGeometry(2, 1.2, 25, 32);
@@ -141,7 +142,8 @@ export function createGround(width, height, yOffset) {
 
     let mesh = createGroundPlane(width, height, 1, 1, 0);
     mesh.rotation.x = -Math.PI/2;
-    mesh.material = new THREE.MeshStandardMaterial({ map: texture });
+    // mesh.material = new THREE.MeshStandardMaterial({ map: texture });
+    mesh.material = metal2.clone();
     mesh.material.transparent = true;
     mesh.receiveShadow = true;
 
@@ -193,25 +195,29 @@ export function importTargets(scene) {
     return object;
 }
 
+// TODO importar modelo da torreta
 export function importTurret(scene) {
-    let holder = new THREE.Object3D();
-    scene.add(holder);
+    return new THREE.Mesh(
+        new THREE.BoxGeometry(10, 20, 10),
+        new THREE.MeshStandardMaterial({color: 'white', transparent: true}));
+    // let holder = new THREE.Object3D();
+    // scene.add(holder);
 
-    const loader = new GLTFLoader();
-    loader.load('./airplane/turret_double.glb', loaded => {
-        /** @type {THREE.Group} */
-        const obj = loaded.scene;
-        obj.scale.setScalar(30);
-        holder.add(obj);
-        holder.traverse(o => {
-            if (o.isMesh)
-                o.material.transparent = true;
-            o.castShadow = true;
-            o.receiveShadow = true;
-        });
-    });
+    // const loader = new GLTFLoader();
+    // loader.load('./airplane/turret_double.glb', loaded => {
+    //     /** @type {THREE.Group} */
+    //     const obj = loaded.scene;
+    //     obj.scale.setScalar(30);
+    //     holder.add(obj);
+    //     holder.traverse(o => {
+    //         if (o.isMesh)
+    //             o.material.transparent = true;
+    //         o.castShadow = true;
+    //         o.receiveShadow = true;
+    //     });
+    // });
 
-    return holder
+    // return holder
 }
 
 const bulletGeometry = new THREE.SphereGeometry(2);

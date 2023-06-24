@@ -8,11 +8,12 @@ import {
 
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 
-import { CONFIG } from './utils.js';
+import { CONFIG, TexLoader } from './utils.js';
 import { createGround, createCuboid, importTurret } from './meshGenerators.js';
 import { Translater, opacityFog } from './Translater.js';
 import { PlaneController } from './PlaneController.js';
-import { metal2 } from './textures.js';
+import { metal1, metal2 } from './textures.js';
+import { World } from './world.js';
 
 // Create main scene
 let scene = new THREE.Scene();
@@ -44,6 +45,19 @@ light.shadow.camera.far = 2000
 let shadowMapHelper = new THREE.CameraHelper(light.shadow.camera)
 shadowMapHelper.visible = CONFIG.debug;
 scene.add(light, ambient, light.target, shadowMapHelper);
+
+TexLoader.load('./textures/sky.jpg', texture => {
+  let pmremGenerator = new THREE.PMREMGenerator(renderer);
+  pmremGenerator.compileEquirectangularShader();
+
+  let envMap = pmremGenerator.fromEquirectangular(texture).texture;
+  
+  texture.mapping = THREE.EquirectangularReflectionMapping;
+  scene.background = texture;
+  scene.environment = envMap;
+
+  pmremGenerator.dispose();
+})
 
 // Listen window size changes
 window.addEventListener('resize', _ => onWindowResize(camera, renderer));
@@ -105,30 +119,44 @@ window.addEventListener('keydown', ev => {
 let translaters = []
 const Z = new THREE.Vector3(0, 0, 1);
 
-// Criação dos planos e cubos
+let planeGeometry = new THREE.PlaneGeometry(CONFIG.planeWidth, CONFIG.planeHeight);
+let cube = new THREE.BoxGeometry(10, 10, 10);
 for (let i = 0; i < CONFIG.planeCount; ++i) {
-  let ground = createGround(CONFIG.planeWidth, CONFIG.planeHeight, CONFIG.planeVerticalOffset);
-  ground.material.transparent = true;
-
-  let boxLeft = createCuboid(100, 50, 100, metal2.clone())
-  boxLeft.position.x += CONFIG.planeWidth / 2 + 50;
-  boxLeft.position.y -= 25;
-
-  let boxRight = boxLeft.clone();
-  boxLeft.position.x -= CONFIG.planeWidth + 100;
-
+  // 0 __          __ 6
+  //   1 |__ __ __| 5
+  //      2  3  4
   let holder = new THREE.Object3D();
-  holder.add(boxLeft, ground, boxRight);
-  holder.position.z = -CONFIG.planeHeight * i;
 
+  let offsets = [
+    [[-2.0, 1.0], [-Math.PI/2, 0,          0]],
+    [[-1.5, 0.5], [-Math.PI/2, Math.PI/2,  0]],
+    [[-1.0, 0.0], [-Math.PI/2, 0,          0]],
+    [[0, 0],      [-Math.PI/2, 0,          0]],
+    [[1.0, 0.0],  [-Math.PI/2, 0,          0]],
+    [[1.5, 0.5],  [-Math.PI/2, -Math.PI/2, 0]],
+    [[2.0, 1.0],  [-Math.PI/2, 0,          0]],
+  ]
+
+  for (let [[dx, dy], [x, y, z]] of offsets) {
+    let mesh = new THREE.Mesh(planeGeometry, metal2.clone())
+    mesh.receiveShadow = true;
+    mesh.position.set(dx*CONFIG.planeWidth, dy*CONFIG.planeWidth + CONFIG.planeVerticalOffset);
+    mesh.rotation.set(x,y,z);
+    
+
+    holder.add(mesh)
+  }
+
+  holder.position.z = i * CONFIG.planeHeight;
   let holderT = new Translater(Z, holder, 1400, opacityFog);
   holderT.startPoint.z = -1200;
-
+  
   translaters.push(holderT);
 }
 
+
 /** @type {Object.<string, THREE.Object3D>} */
-let turrets = {};
+let turrets = World.turrets;
 
 // Criação das torretas
 for (let i = 0; i < CONFIG.turretCount; ++i) {
@@ -145,39 +173,11 @@ for (let i = 0; i < CONFIG.turretCount; ++i) {
   translaters.push(translater);
 }
 
-/*
-// Criação das arvores
-let trees = [];
-let treeTurretDistance = new THREE.Vector3();
-for (let i = 0; i <= CONFIG.treeCount; ++i) {
-  let tree = createTree()
-  trees.push(tree);
-  tree.material.transparent = true;
-
-  for (;;) {
-    tree.position.x = MathUtils.randFloatSpread(CONFIG.treeDistribution);
-    tree.position.y = CONFIG.treeVerticalOffset;
-    tree.position.z = MathUtils.randInt(-1200, 200);
-
-    let clipping = false;
-    for (let turret of Object.values(turrets)) {
-      let dist = treeTurretDistance.subVectors(turret.position, tree.position).length();
-      if (dist < 20)
-        clipping = true;
-    }
-
-    if (!clipping)
-      break;
-  }
-
-  let translater = new Translater(Z, tree, 1400, opacityFog)
-  translater.startPoint.z = -1200
-
-  translaters.push(translater);
-}
-*/
-
 scene.add(...translaters.map(a => a.object));
+
+const red = new THREE.Color( 0xff0000 );
+const white = new THREE.Color( 0xffffff );
+let turretBB = new THREE.Box3();
 
 function render() {
   requestAnimationFrame(render);
@@ -195,10 +195,9 @@ function render() {
     camera.fov = MathUtils.lerp(camera.fov, CONFIG.cameraFov, 10 * dt)
     camera.updateProjectionMatrix();
 
+    
     // lógica das colisões projétil-torretas
-    let turretBB = new THREE.Box3();
     for (let turret of Object.values(turrets)) {
-
       // se a torreta estivar marcada como 'morta', acontece a animação
       if (turret.userData['dead']) {
 
@@ -212,8 +211,18 @@ function render() {
           turret.position.z += -1400;
         }
 
-        // não a nescessidade de checar colisões com essa torreta
+        // não a nescessidade de demais calculos com essa torreta, pois a mesma está 'morta',
+        // saindo do loop
         continue;
+      }
+
+      // torreta capaz de atirar
+      if (turret.position.z < -200 && turret.position.z > -800) {
+        turret.material.color = red;
+        turret.material.needsUpdate = true;
+      } else {
+        turret.material.color = white;
+        turret.material.needsUpdate = true;
       }
 
       // calcula a AABB
