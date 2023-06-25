@@ -22,7 +22,7 @@ export const CONFIG = {
   treeScaleMax: 2,
 
   planeCount: 14,
-  planeWidth: 150,
+  planeWidth: 50,
   planeHeight: 100,
   planeVerticalOffset: -50,
 

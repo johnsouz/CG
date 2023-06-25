@@ -3,6 +3,7 @@ import { MathUtils } from 'three';
 import { CONFIG, sprintProps } from './utils.js';
 import { createBullet, importAirplane, importTargets } from './meshGenerators.js';
 import { createGroundPlane } from '../libs/util/util.js';
+import { World } from './world.js';
 
 export class PlaneController {
 
@@ -64,12 +65,12 @@ export class PlaneController {
     this.euler = new THREE.Euler(0, Math.PI, 0);
     this.quaternion = new THREE.Quaternion();
 
-    /** guarda todos os projeteis na cena
-     * @type {Object.<string, THREE.Mesh>} */
-    this.bullets = {};
-
     /** determina se neste frame vai haver disparo */
     this.willShoot = false;
+
+    /** vida da nave */
+    this.health = 5;
+    this.color = new THREE.Color();
 
     scene.add(raycastPlane, this.object, this.target);
 
@@ -187,19 +188,6 @@ request.onload = function() {
     // apontar as miras para o objeto
     this.target.lookAt(this.object.position);
 
-    // Atualização das posiçoes dos projeteis
-    for (let [key, bullet] of Object.entries(this.bullets)) {
-
-      // avança o projétil
-      bullet.translateZ(CONFIG.bulletSpeed * dt);
-
-      // se o projetil estiver fora da AABB, é remova da cena
-      if (!CONFIG.bulletBoundingBox.containsPoint(bullet.position)) {
-        this.scene.remove(bullet);
-        delete this.bullets[key]
-      }
-    }
-
     // Criação do projétil
     if (this.willShoot) {
       this.willShoot = false;
@@ -208,12 +196,16 @@ request.onload = function() {
       bullet.lookAt(this.direction.clone().add(bullet.position));
 
       this.scene.add(bullet)
-      this.bullets[bullet.uuid] = bullet;
+      World.playerBullets[bullet.uuid] = bullet;
     }
 
-    // if (CONFIG.debug)
-    //   this.p.innerText =
-    //     sprintProps(this.object, ["position"]) +
-    //     sprintProps(this.target, ["position"])
+    // vida da nave pela cor
+    this.color.g = this.health/5;
+    this.color.b = this.health/5;
+    this.object.traverse(obj => {
+      if (obj.isMesh) {
+        obj.material.color.copy(this.color);
+      }
+    })
   }
 }

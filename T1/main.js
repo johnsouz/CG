@@ -9,10 +9,10 @@ import {
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 
 import { CONFIG, TexLoader } from './utils.js';
-import { createGround, createCuboid, importTurret } from './meshGenerators.js';
+import { importTurret, createBullet } from './meshGenerators.js';
 import { Translater, opacityFog } from './Translater.js';
 import { PlaneController } from './PlaneController.js';
-import { metal1, metal2 } from './textures.js';
+import { metal2 } from './textures.js';
 import { World } from './world.js';
 
 // Create main scene
@@ -67,11 +67,16 @@ let orbitController = new OrbitControls(camera, renderer.domElement);
 orbitController.enabled = CONFIG.debug;
 document.body.style.cursor = CONFIG.debug ? 'auto' : 'none';
 
+let boxHelper = new THREE.BoxHelper(planeController.object);
+boxHelper.visible = CONFIG.debug;
+scene.add(boxHelper);
+
 window.addEventListener('blur', _ => CONFIG.simulationOn = false);
 window.addEventListener('debug', _ => {
   orbitController.enabled = CONFIG.debug;
   shadowMapHelper.visible = CONFIG.debug;
   planeController.raycastPlane.visible = CONFIG.debug;
+  boxHelper.visible = CONFIG.debug;
 });
 
 //configuração de som, começando com trilha sonora
@@ -167,6 +172,8 @@ for (let i = 0; i < CONFIG.turretCount; ++i) {
   turret.position.y = CONFIG.turretVerticalOffset;
   turret.position.z = -300 * i;
 
+  turret.userData['lastShot'] = Date.now();
+
   let translater = new Translater(Z, turret, 1400, opacityFog)
   translater.startPoint.z = -1200;
 
@@ -175,10 +182,7 @@ for (let i = 0; i < CONFIG.turretCount; ++i) {
 
 scene.add(...translaters.map(a => a.object));
 
-const red = new THREE.Color( 0xff0000 );
-const white = new THREE.Color( 0xffffff );
-let turretBB = new THREE.Box3();
-
+let box = new THREE.Box3();
 function render() {
   requestAnimationFrame(render);
   let dt = clock.getDelta();
@@ -188,17 +192,32 @@ function render() {
     // planos, cubos e arvores
     translaters.forEach(obj => obj.update(dt));
     audio.volume = 0.4;
+    
     // avião
     planeController.update(dt)
+    boxHelper.update();
 
     // animação na mudança de velocidade
     camera.fov = MathUtils.lerp(camera.fov, CONFIG.cameraFov, 10 * dt)
     camera.updateProjectionMatrix();
 
+    // Atualização das posiçoes dos projeteis
+    for (let [key, bullet] of [...Object.entries(World.playerBullets), ...Object.entries(World.enemyBullets)]) {
+
+      // avança o projétil
+      bullet.translateZ(CONFIG.bulletSpeed * dt);
+
+      // se o projetil estiver fora da AABB global, é removida da cena
+      if (!CONFIG.bulletBoundingBox.containsPoint(bullet.position)) {
+        scene.remove(bullet);
+        delete World.playerBullets[key]
+        delete World.enemyBullets[key]
+      }
+    }
     
-    // lógica das colisões projétil-torretas
+    //#region lógica das colisões projétil-torretas
     for (let turret of Object.values(turrets)) {
-      // se a torreta estivar marcada como 'morta', acontece a animação
+      //#region se a torreta estivar marcada como 'morta', acontece a animação
       if (turret.userData['dead']) {
 
         turret.position.y += -100 * dt;
@@ -210,35 +229,47 @@ function render() {
           turret.position.y = CONFIG.turretVerticalOffset;
           turret.position.z += -1400;
         }
-
-        // não a nescessidade de demais calculos com essa torreta, pois a mesma está 'morta',
-        // saindo do loop
-        continue;
       }
+      //#endregion
 
-      // torreta capaz de atirar
-      if (turret.position.z < -200 && turret.position.z > -800) {
-        turret.material.color = red;
-        turret.material.needsUpdate = true;
-      } else {
-        turret.material.color = white;
-        turret.material.needsUpdate = true;
+      //#region torreta capaz de atirar
+      if (turret.position.z < -200 && turret.position.z > -800 && (Date.now() - turret.userData['lastShot'] > 3000)) {
+        let bullet = createBullet(turret.position);
+        bullet.lookAt(planeController.object.position);
+        
+        scene.add(bullet);
+        turret.userData['lastShot'] = Date.now();
+        
+        World.enemyBullets[bullet.uuid] = bullet;
       }
-
-      // calcula a AABB
-      turretBB.setFromObject(turret)
-
-      // checa todos os projéteis se estão dentro de alguma torreta
+      //#endregion
+      
+      //#region checa todos os projéteis se estão dentro de alguma torreta
       // se sim, destroi o projetil e marca a torreta como 'morta'
-      for (let [bulletKey, bullet] of Object.entries(planeController.bullets)) {
+      let turretBB = box.setFromObject(turret)
+      for (let [bulletKey, bullet] of Object.entries(World.playerBullets)) {
         if (turretBB.containsPoint(bullet.position)) {
-          scene.remove(planeController.bullets[bulletKey]);
-          delete planeController.bullets[bulletKey];
+          scene.remove(World.playerBullets[bulletKey]);
+          delete World.playerBullets[bulletKey];
 
           turret.userData['dead'] = true;
         }
       }
+      
+      // a mesma coisa para as bullets inimigas
+      let planeBB = box.setFromObject(planeController.object);
+      for (let [bulletKey, bullet] of Object.entries(World.enemyBullets)) {
+        if (planeBB.containsPoint(bullet.position)) {
+          scene.remove(World.enemyBullets[bulletKey])
+          delete World.enemyBullets[bulletKey];
+          
+          planeController.health -= 1;
+          console.log(planeController.health);
+        }
+      }
+      //#endregion
     }
+    //#endregion
   }
 
   renderer.render(scene, camera) // Render scene
