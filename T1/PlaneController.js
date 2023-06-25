@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { MathUtils } from 'three';
-import { CONFIG, sprintProps } from './utils.js';
+import { CONFIG } from './utils.js';
 import { createBullet, importAirplane, importTargets } from './meshGenerators.js';
 import { createGroundPlane } from '../libs/util/util.js';
 import { World } from './world.js';
@@ -18,6 +18,8 @@ export class PlaneController {
    */
   constructor(scene, camera) {
 
+    this.isMobile = /Mobile|iP(hone|od|ad)|Android/i.test(window.navigator.userAgent);
+
     /** o plano que interceptará o Raycaster */
     let raycastPlane = createGroundPlane(1000, 1000);
     raycastPlane.position.add(CONFIG.raycastPlaneOffset);
@@ -27,6 +29,12 @@ export class PlaneController {
     raycastPlane.material.depthWrite = false;
     raycastPlane.renderOrder = 2;
     this.raycastPlane = raycastPlane;
+
+    if (this.isMobile) {
+      this.joystick = nipplejs.create();
+      this.joystickVector = new THREE.Vector3();
+      this.joystickForce = 0;
+    }
 
     // a cena atual e sua camera
     this.scene = scene;
@@ -55,7 +63,7 @@ export class PlaneController {
     this.direction = new THREE.Vector3();
 
     /** posição atual do ponteiro em coordenadas de tela normalizadas */
-    this.pointer = new THREE.Vector2();
+    this.pointer = new THREE.Vector3();
     /** a diferença das coordenadas do target desde o ultimo frame */
     this.moveDelta = new THREE.Vector3();
     /** transformação de coordenadas no target independente do plano */
@@ -72,7 +80,7 @@ export class PlaneController {
     this.health = 5;
     this.color = new THREE.Color();
 
-    scene.add(raycastPlane, this.object, this.target);
+    scene.add(this.object, this.target);
 
     /**
      * Guarda o objeto de raycast para que não seja preciso instanciar uma nova `Array`
@@ -80,45 +88,58 @@ export class PlaneController {
      * @type {THREE.Intersection[]} */
     this.raycastIntersections = [];
 
-    window.addEventListener('pointermove', e => this.__pointermoveCallback(e));
-    window.addEventListener('click', e => this.__clickCallback(e));
+    if (this.isMobile) {
+      this.joystick.on('move', (_, e) => this.__joystickCallback(e));
+    } else {
+      window.addEventListener('pointermove', e => this.__pointermoveCallback(e));
+      window.addEventListener('click', e => this.__clickCallback(e));
+    }
+  }
+
+  __joystickCallback(e) {
+    this.joystickForce = e.force;
+    this.joystickVector.set(e.vector.x, e.vector.y);
   }
 
   /** Chamado toda vez em que o mouse é movido
    * @param {MouseEvent} e */
   __pointermoveCallback(e) {
-    this.pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
-    this.pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    this.pointer.x = MathUtils.mapLinear(e.clientX, 0, window.innerWidth, -1, 1)
+    this.pointer.y = -MathUtils.mapLinear(e.clientY, 0, window.innerHeight, -1, 1)
   }
 
   /** @param {MouseEvent} e */
   __clickCallback(e) {
-    if (CONFIG.simulationOn){
+    if (CONFIG.simulationOn) {
       this.willShoot = true;
+
+      // TODO
+      // Criar um request a cada disparo é muito bizarro
+
       // Cria um contexto de áudio
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-// Carrega o arquivo de áudio do efeito sonoro
-const audioURL = 'X-wing blaster.mp3';
-const request = new XMLHttpRequest();
-request.open('GET', audioURL, true);
-request.responseType = 'arraybuffer';
+      // Carrega o arquivo de áudio do efeito sonoro
+      const audioURL = 'X-wing blaster.mp3';
+      const request = new XMLHttpRequest();
+      request.open('GET', audioURL, true);
+      request.responseType = 'arraybuffer';
 
-request.onload = function() {
-  // Decodifica o arquivo de áudio
-  audioContext.decodeAudioData(request.response, function(buffer) {
-    // Cria um nó de áudio para o efeito sonoro
-    const disparoNave = audioContext.createBufferSource();
-    disparoNave.buffer = buffer;
+      request.onload = function () {
+        // Decodifica o arquivo de áudio
+        audioContext.decodeAudioData(request.response, function (buffer) {
+          // Cria um nó de áudio para o efeito sonoro
+          const disparoNave = audioContext.createBufferSource();
+          disparoNave.buffer = buffer;
 
-    // Conecta o nó de áudio ao destino de áudio (saída)
-    disparoNave.connect(audioContext.destination);
+          // Conecta o nó de áudio ao destino de áudio (saída)
+          disparoNave.connect(audioContext.destination);
 
-    // Toca o efeito sonoro
-    disparoNave.start(0);
+          // Toca o efeito sonoro
+          disparoNave.start(0);
 
-  });
-};
+        });
+      };
 
       request.send();
     }
@@ -131,17 +152,31 @@ request.onload = function() {
   /** @param {number} dt deltaTime */
   update(dt) {
 
-    // setup do raycaster a partir da camera
-    this.raycastIntersections.length = 0;
-    this.raycaster.setFromCamera(this.pointer, this.camera);
-    this.raycaster.intersectObject(this.raycastPlane, false, this.raycastIntersections);
+    let point = CONFIG.raycastPlaneOffset.clone();
 
-    // interseção do raycaster, caso não exista, retorne
-    let ray = this.raycastIntersections[0];
-    if (!ray) return;
+    if (!this.isMobile) {
+
+      // setup do raycaster a partir da camera
+      this.raycastIntersections.length = 0;
+      this.raycaster.setFromCamera(this.pointer, this.camera);
+      this.raycaster.intersectObject(this.raycastPlane, false, this.raycastIntersections);
+
+      // interseção do raycaster, caso não exista, retorne
+      let ray = this.raycastIntersections[0];
+      if (!ray) return;
+      point = ray.point;
+
+    } else /* isMobile */ {
+      point.x += this.joystickVector.x * this.joystickForce * 20;
+      point.y += this.joystickVector.y * this.joystickForce * 20;
+
+      // obtendo as coordenadas de tela projetando a posição do target na tela
+      // raycast "reverso"
+      this.pointer.copy(this.target.position).project(this.camera)
+    }
 
     // delta da posição desde o último frame
-    this.moveDelta.subVectors(ray.point, this.target.position);
+    this.moveDelta.subVectors(point, this.target.position);
 
     // quando não estiver em debug, a camera se movimenta levemente em
     // direção as coordenas de tela do mouse
@@ -158,7 +193,7 @@ request.onload = function() {
     }
 
     // Posição do target a ser interpolada, sem alterar o valor no raycast
-    this.offsettedTarget.copy(ray.point);
+    this.offsettedTarget.copy(point);
     this.offsettedTarget.z = CONFIG.raycastPlaneOffset.z + CONFIG.targetOffset.z;
 
     // translação do alvo para o ponto de interseção
@@ -200,8 +235,8 @@ request.onload = function() {
     }
 
     // vida da nave pela cor
-    this.color.g = this.health/5;
-    this.color.b = this.health/5;
+    this.color.g = this.health / 5;
+    this.color.b = this.health / 5;
     this.object.traverse(obj => {
       if (obj.isMesh) {
         obj.material.color.copy(this.color);

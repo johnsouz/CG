@@ -3,7 +3,6 @@ import { TexLoader } from "./utils.js"
 
 export let metal1 = new MeshStandardMaterial({
     map: TexLoader.load('textures/metal1/red-scifi-metal_albedo.png'),
-    normalMap: TexLoader.load('textures/metal1/red-scifi-metal_normal-ogl.png'),
     aoMap: TexLoader.load('textures/metal1/red-scifi-metal_ao.png'),
     metalnessMap: TexLoader.load('textures/metal1/red-scifi-metal_metallic.png'),
     roughnessMap: TexLoader.load('textures/metal1/red-scifi-metal_roughness.png'),
@@ -16,7 +15,6 @@ export let metal1 = new MeshStandardMaterial({
 
 export let metal2 = new MeshStandardMaterial({
     map: TexLoader.load('textures/metal2/sci-fi-panel1-albedo.png'),
-    normalMap: TexLoader.load('textures/metal2/sci-fi-panel1-normal-ogl.png'),
     aoMap: TexLoader.load('textures/metal2/sci-fi-panel1-ao.png'),
     metalnessMap: TexLoader.load('textures/metal2/sci-fi-panel1-metallic.png'),
     roughnessMap: TexLoader.load('textures/metal2/sci-fi-panel1-roughness.png'),
