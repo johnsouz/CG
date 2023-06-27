@@ -8,7 +8,7 @@ import {
 
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 
-import { CONFIG, TexLoader } from './utils.js';
+import { CONFIG, TexLoader, changeSpeed } from './utils.js';
 import { importTurret, createBullet } from './meshGenerators.js';
 import { Translater, opacityFog } from './Translater.js';
 import { PlaneController } from './PlaneController.js';
@@ -19,7 +19,7 @@ import { World } from './world.js';
 let scene = new THREE.Scene();
 
 // Init a basic renderer
-var renderer = new THREE.WebGLRenderer({ antialias: true });
+var renderer = new THREE.WebGLRenderer({ antialias: !CONFIG.isMobile });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.shadowMap.enabled = true;
@@ -83,6 +83,7 @@ window.addEventListener('debug', _ => {
 const audio = document.querySelector('#background-music');
 audio.volume = 0.4;
 window.addEventListener('keydown', ev => {
+  changeSpeed(e.key)
   switch (ev.key) {
     case 'Escape':
       if (CONFIG.simulationOn)
@@ -90,21 +91,6 @@ window.addEventListener('keydown', ev => {
       else
         audio.volume = 0.4;
       CONFIG.simulationOn = !CONFIG.simulationOn;
-      break;
-
-    case '1':
-      CONFIG.cameraFov = 45;
-      CONFIG.speed = 200;
-      break;
-
-    case '2':
-      CONFIG.cameraFov = 50;
-      CONFIG.speed = 400;
-      break;
-
-    case '3':
-      CONFIG.cameraFov = 55;
-      CONFIG.speed = 500;
       break;
 
     case 's':
@@ -125,7 +111,6 @@ let translaters = []
 const Z = new THREE.Vector3(0, 0, 1);
 
 let planeGeometry = new THREE.PlaneGeometry(CONFIG.planeWidth, CONFIG.planeHeight);
-let cube = new THREE.BoxGeometry(10, 10, 10);
 for (let i = 0; i < CONFIG.planeCount; ++i) {
   // 0 __          __ 6
   //   1 |__ __ __| 5
@@ -148,7 +133,6 @@ for (let i = 0; i < CONFIG.planeCount; ++i) {
     mesh.position.set(dx*CONFIG.planeWidth, dy*CONFIG.planeWidth + CONFIG.planeVerticalOffset);
     mesh.rotation.set(x,y,z);
     
-
     holder.add(mesh)
   }
 

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { MathUtils } from 'three';
-import { CONFIG } from './utils.js';
+import { CONFIG, changeSpeed } from './utils.js';
 import { createBullet, importAirplane, importTargets } from './meshGenerators.js';
 import { createGroundPlane } from '../libs/util/util.js';
 import { World } from './world.js';
@@ -18,8 +18,6 @@ export class PlaneController {
    */
   constructor(scene, camera) {
 
-    this.isMobile = /Mobile|iP(hone|od|ad)|Android/i.test(window.navigator.userAgent);
-
     /** o plano que interceptará o Raycaster */
     let raycastPlane = createGroundPlane(1000, 1000);
     raycastPlane.position.add(CONFIG.raycastPlaneOffset);
@@ -30,8 +28,9 @@ export class PlaneController {
     raycastPlane.renderOrder = 2;
     this.raycastPlane = raycastPlane;
 
-    if (this.isMobile) {
-      this.joystick = nipplejs.create();
+    if (CONFIG.isMobile) {
+      document.getElementById('controls').style.display = 'block';
+      this.joystick = nipplejs.create({ zone: document.getElementById("left") });
       this.joystickVector = new THREE.Vector3();
       this.joystickForce = 0;
     }
@@ -88,8 +87,19 @@ export class PlaneController {
      * @type {THREE.Intersection[]} */
     this.raycastIntersections = [];
 
-    if (this.isMobile) {
+    if (CONFIG.isMobile) {
       this.joystick.on('move', (_, e) => this.__joystickCallback(e));
+
+      let shootBtn = document.getElementById('shoot');
+      shootBtn.addEventListener('pointerdown', e => this.__clickCallback(e));
+
+      let speedBtns = document.getElementsByClassName('velocityChange');
+      for (let btn of speedBtns) {
+        btn.addEventListener('pointerdown', e => {
+          changeSpeed(btn.attributes.getNamedItem('data-speed').value)
+        });
+      }
+
     } else {
       window.addEventListener('pointermove', e => this.__pointermoveCallback(e));
       window.addEventListener('click', e => this.__clickCallback(e));
@@ -97,6 +107,7 @@ export class PlaneController {
   }
 
   __joystickCallback(e) {
+    CONFIG.simulationOn = true;
     this.joystickForce = e.force;
     this.joystickVector.set(e.vector.x, e.vector.y);
   }
@@ -154,7 +165,7 @@ export class PlaneController {
 
     let point = CONFIG.raycastPlaneOffset.clone();
 
-    if (!this.isMobile) {
+    if (!CONFIG.isMobile) {
 
       // setup do raycaster a partir da camera
       this.raycastIntersections.length = 0;

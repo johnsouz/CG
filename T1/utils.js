@@ -1,6 +1,7 @@
 import { Vector3, Box3, TextureLoader} from "three";
 
 export const CONFIG = {
+  isMobile: /Mobile|iP(hone|od|ad)|Android/i.test(window.navigator.userAgent),
   simulationOn: true,
   debug: false,
 
@@ -39,6 +40,26 @@ export const CONFIG = {
 };
 
 export let TexLoader = new TextureLoader();
+
+/** @param {string} speed */
+export let changeSpeed = (speed) => {
+  switch (speed) {
+    case '1':
+      CONFIG.cameraFov = 45;
+      CONFIG.speed = 200;
+      break;
+
+    case '2':
+      CONFIG.cameraFov = 50;
+      CONFIG.speed = 400;
+      break;
+
+    case '3':
+      CONFIG.cameraFov = 55;
+      CONFIG.speed = 500;
+      break;
+  }
+}
 
 window.addEventListener('keyup', ev => {
   if (ev.key != 'd')

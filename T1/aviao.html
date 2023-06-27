@@ -29,6 +29,46 @@
         right: 0.5em;
         top: 0.5em;
       }
+
+      #left {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50%;
+        height: 100%;
+      }
+      #right {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 50%;
+        height: 100%;
+      }
+      .wrapper {
+        display: grid;
+        position: absolute;
+        bottom: 1em;
+        right: 1em;
+        grid-row-gap: 1em;
+        user-select: none;
+      }
+      .ball {
+        display: block;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: hsla(0, 0%, 100%, 0.5);
+        bottom: 1em;
+        right: 1em;
+        text-align: center;
+        line-height: 50px;
+      }
+      .ball p {
+        color: black;
+        font-family: 'Consolas', monospace;
+        font-weight: bolder;
+        font-size: x-large;
+      }
     </style>
   </head>
 
@@ -46,6 +86,20 @@
   </div>
 
   <pre id="coords" class="info debugInfo"></pre>
+
+  <div id="controls" style="display: none;">
+    <div id="left"></div>
+    <div id="right">
+      <div class="wrapper">
+        <div class="ball velocityChange" data-speed="1"><p>1</p></div>
+        <div class="ball velocityChange" data-speed="2"><p>2</p></div>
+        <div class="ball velocityChange" data-speed="3"><p>3</p></div>
+        <hr>
+        <div class="ball" id="shoot"><p>X</p></div>
+      </div>
+    </div>
+  </div>
+
   <pre class="info tutorial"> [ESC] Pause | [D] Debug | [S] Turn On/Off Sound</pre>
 </body>
 
