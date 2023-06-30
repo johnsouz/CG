@@ -79,7 +79,7 @@ export function importAirplane(scene) {
     scene.add(holder);
 
     const loader = new GLTFLoader();
-    loader.load('./airplane/airplane.glb', loaded => {
+    loader.load('xwing.glb', loaded => {
         /** @type {THREE.Group} */
         const obj = loaded.scene;
 
