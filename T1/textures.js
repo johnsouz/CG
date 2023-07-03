@@ -6,7 +6,7 @@ export let metal1 = new MeshStandardMaterial({
     aoMap: TexLoader.load('textures/metal1/red-scifi-metal_ao.png'),
     metalnessMap: TexLoader.load('textures/metal1/red-scifi-metal_metallic.png'),
     roughnessMap: TexLoader.load('textures/metal1/red-scifi-metal_roughness.png'),
-    bumpMap: TexLoader.load('textures/metal1/red-scifi-metal_height.png'),
+    normalMap: TexLoader.load('textures/metal1/red-scifi-metal_normal-ogl.png'),
 
     metalness: 0.5,
     roughness: 0.8,
@@ -18,7 +18,7 @@ export let metal2 = new MeshStandardMaterial({
     aoMap: TexLoader.load('textures/metal2/sci-fi-panel1-ao.png'),
     metalnessMap: TexLoader.load('textures/metal2/sci-fi-panel1-metallic.png'),
     roughnessMap: TexLoader.load('textures/metal2/sci-fi-panel1-roughness.png'),
-    bumpMap: TexLoader.load('textures/metal2/sci-fi-panel1-height.png'),
+    normalMap: TexLoader.load('textures/metal2/sci-fi-panel1-normal-ogl.png'),
 
     metalness: 0.6,
     roughness: 0.2,

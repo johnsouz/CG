@@ -13,7 +13,7 @@ import { importTurret, createBullet } from './meshGenerators.js';
 import { Translater, opacityFog } from './Translater.js';
 import { PlaneController } from './PlaneController.js';
 import { metal2 } from './textures.js';
-import { World } from './world.js';
+import { AudioResources, World } from './world.js';
 
 // Create main scene
 let scene = new THREE.Scene();
@@ -31,6 +31,7 @@ renderer.shadowMap.height = 4096;
 document.getElementById("webgl-output").appendChild(renderer.domElement);
 
 let camera = initCamera(CONFIG.cameraPos); // Init camera in this position
+camera.add(AudioResources.listener);
 let light = new THREE.DirectionalLight('white', 1.6);
 let ambient = new THREE.AmbientLight('white', 0.2);
 light.position.set(75, 50, 0);
@@ -79,11 +80,17 @@ window.addEventListener('debug', _ => {
   boxHelper.visible = CONFIG.debug;
 });
 
+let audio = document.getElementById('background-music');
+let startEvent = document.getElementById('startGame')
+startEvent.addEventListener('pointerdown', ev => {
+  startEvent.style.display = 'none';
+  CONFIG.simulationOn = true;
+  audio.play();
+});
+
 //configuração de som, começando com trilha sonora
-const audio = document.querySelector('#background-music');
-audio.volume = 0.4;
 window.addEventListener('keydown', ev => {
-  changeSpeed(e.key)
+  changeSpeed(ev.key)
   switch (ev.key) {
     case 'Escape':
       if (CONFIG.simulationOn)
@@ -98,7 +105,7 @@ window.addEventListener('keydown', ev => {
         audio.play();
       else
         audio.pause();
-      break;
+      break;      
 
   }
   document.body.style.cursor = CONFIG.simulationOn ? 'none' : 'auto';

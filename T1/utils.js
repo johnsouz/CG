@@ -2,7 +2,7 @@ import { Vector3, Box3, TextureLoader} from "three";
 
 export const CONFIG = {
   isMobile: /Mobile|iP(hone|od|ad)|Android/i.test(window.navigator.userAgent),
-  simulationOn: true,
+  simulationOn: false,
   debug: false,
 
   cameraPos: new Vector3(0, 0, 50),

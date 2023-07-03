@@ -82,6 +82,8 @@ export function importAirplane(scene) {
     loader.load('xwing.glb', loaded => {
         /** @type {THREE.Group} */
         const obj = loaded.scene;
+        obj.scale.setScalar(3);
+        obj.children[0].rotation.z = Math.PI;
 
         holder.add(loaded.scene);
         holder.traverse(o => {

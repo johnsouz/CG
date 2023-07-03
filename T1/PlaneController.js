@@ -3,7 +3,7 @@ import { MathUtils } from 'three';
 import { CONFIG, changeSpeed } from './utils.js';
 import { createBullet, importAirplane, importTargets } from './meshGenerators.js';
 import { createGroundPlane } from '../libs/util/util.js';
-import { World } from './world.js';
+import { AudioResources, World } from './world.js';
 
 export class PlaneController {
 
@@ -123,36 +123,9 @@ export class PlaneController {
   __clickCallback(e) {
     if (CONFIG.simulationOn) {
       this.willShoot = true;
-
-      // TODO
-      // Criar um request a cada disparo é muito bizarro
-
-      // Cria um contexto de áudio
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-      // Carrega o arquivo de áudio do efeito sonoro
-      const audioURL = 'X-wing blaster.mp3';
-      const request = new XMLHttpRequest();
-      request.open('GET', audioURL, true);
-      request.responseType = 'arraybuffer';
-
-      request.onload = function () {
-        // Decodifica o arquivo de áudio
-        audioContext.decodeAudioData(request.response, function (buffer) {
-          // Cria um nó de áudio para o efeito sonoro
-          const disparoNave = audioContext.createBufferSource();
-          disparoNave.buffer = buffer;
-
-          // Conecta o nó de áudio ao destino de áudio (saída)
-          disparoNave.connect(audioContext.destination);
-
-          // Toca o efeito sonoro
-          disparoNave.start(0);
-
-        });
-      };
-
-      request.send();
+      if (AudioResources.blaster) {
+        new THREE.Audio(AudioResources.listener).setBuffer(AudioResources.blaster).play()
+      }
     }
     if (!CONFIG.simulationOn && !CONFIG.debug) {
       CONFIG.simulationOn = true;
@@ -160,10 +133,12 @@ export class PlaneController {
     }
   }
 
+  #point = new THREE.Vector3();
+  #lookat = new THREE.Vector3();
   /** @param {number} dt deltaTime */
   update(dt) {
 
-    let point = CONFIG.raycastPlaneOffset.clone();
+    let point = this.#point.copy(CONFIG.raycastPlaneOffset);
 
     if (!CONFIG.isMobile) {
 
@@ -239,7 +214,8 @@ export class PlaneController {
       this.willShoot = false;
 
       let bullet = createBullet(this.object.position)
-      bullet.lookAt(this.direction.clone().add(bullet.position));
+      this.#lookat.copy(this.direction).add(bullet.position)
+      bullet.lookAt(this.#lookat);
 
       this.scene.add(bullet)
       World.playerBullets[bullet.uuid] = bullet;
