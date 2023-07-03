@@ -222,7 +222,7 @@ export function importTurret(scene) {
     // return holder
 }
 
-const bulletGeometry = new THREE.SphereGeometry(2);
+const bulletGeometry = new THREE.SphereGeometry(1);
 const bulletMaterial = new THREE.MeshBasicMaterial({ color: 'rebeccapurple' });
 export function createBullet(initialPos) {
     let bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);

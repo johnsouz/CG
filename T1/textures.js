@@ -24,4 +24,3 @@ export let metal2 = new MeshStandardMaterial({
     roughness: 0.2,
     transparent: true,
 })
-// metal2.map.anisotropy = 8;

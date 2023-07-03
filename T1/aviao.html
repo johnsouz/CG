@@ -14,18 +14,19 @@
         vertical-align: baseline;
       }
       .overlay {
-        position: absolute;
         background-color: white;
+        display: flex;
         width: 100%;
         height: 100%;
         cursor: pointer;
+        align-items: center;
+        justify-content: center;
+
       }
       .overlay .btn {
-        position: absolute;
         display: inline-block;
+        text-align: center;
         padding: 1em;
-        left: 50%;
-        top: 50%;
         font-family: monospace;
         border-radius: 10px;
         background-color: gray;
@@ -98,7 +99,7 @@
   </script>
 
   <div id="startGame" class="overlay">
-    <div class="btn">Play</div>
+    <div class="btn">Carregando</div>
   </div>
 
   <div id="webgl-output">     

@@ -1,9 +1,10 @@
-import { Vector3, Box3, TextureLoader} from "three";
+import { Vector3, Box3, TextureLoader, DefaultLoadingManager } from "three";
 
 export const CONFIG = {
   isMobile: /Mobile|iP(hone|od|ad)|Android/i.test(window.navigator.userAgent),
   simulationOn: false,
   debug: false,
+  loadedAssets: false,
 
   cameraPos: new Vector3(0, 0, 50),
   cameraFov: 45,
@@ -94,4 +95,14 @@ export let sprintProps = (obj, props, label) => {
     ret.push((label ?? prop).padStart(12, ' ') + vectorToString(obj[prop]) + '\n');
 
   return ret.join('')
+}
+
+let btn = document.querySelector('#startGame .btn');
+DefaultLoadingManager.onProgress = ( _, loaded, total ) => {
+  btn.textContent = 'Carregando: ' + (loaded / total * 100).toFixed(1) + '%';
+};
+
+DefaultLoadingManager.onLoad = () => {
+  CONFIG.loadedAssets = true;
+  btn.textContent = 'Jogar';
 }

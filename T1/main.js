@@ -83,6 +83,11 @@ window.addEventListener('debug', _ => {
 let audio = document.getElementById('background-music');
 let startEvent = document.getElementById('startGame')
 startEvent.addEventListener('pointerdown', ev => {
+  ev.stopPropagation();
+  if (!CONFIG.loadedAssets) {
+    return;
+  }
+
   startEvent.style.display = 'none';
   CONFIG.simulationOn = true;
   audio.play();
@@ -248,7 +253,7 @@ function render() {
       }
       
       // a mesma coisa para as bullets inimigas
-      let planeBB = box.setFromObject(planeController.object);
+      let planeBB = box.setFromObject(planeController.object).expandByScalar(2);
       for (let [bulletKey, bullet] of Object.entries(World.enemyBullets)) {
         if (planeBB.containsPoint(bullet.position)) {
           scene.remove(World.enemyBullets[bulletKey])

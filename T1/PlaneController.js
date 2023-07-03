@@ -127,7 +127,8 @@ export class PlaneController {
         new THREE.Audio(AudioResources.listener).setBuffer(AudioResources.blaster).play()
       }
     }
-    if (!CONFIG.simulationOn && !CONFIG.debug) {
+
+    if (!CONFIG.simulationOn) {
       CONFIG.simulationOn = true;
       document.body.style.cursor = 'none';
     }
