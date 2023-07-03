@@ -28,13 +28,6 @@ export class PlaneController {
     raycastPlane.renderOrder = 2;
     this.raycastPlane = raycastPlane;
 
-    if (CONFIG.isMobile) {
-      document.getElementById('controls').style.display = 'block';
-      this.joystick = nipplejs.create({ zone: document.getElementById("left") });
-      this.joystickVector = new THREE.Vector3();
-      this.joystickForce = 0;
-    }
-
     // a cena atual e sua camera
     this.scene = scene;
     this.camera = camera;
@@ -87,20 +80,7 @@ export class PlaneController {
      * @type {THREE.Intersection[]} */
     this.raycastIntersections = [];
 
-    if (CONFIG.isMobile) {
-      this.joystick.on('move', (_, e) => this.__joystickCallback(e));
-
-      let shootBtn = document.getElementById('shoot');
-      shootBtn.addEventListener('pointerdown', e => this.__clickCallback(e));
-
-      let speedBtns = document.getElementsByClassName('velocityChange');
-      for (let btn of speedBtns) {
-        btn.addEventListener('pointerdown', e => {
-          changeSpeed(btn.attributes.getNamedItem('data-speed').value)
-        });
-      }
-
-    } else {
+    if (!CONFIG.isMobile) {
       window.addEventListener('pointermove', e => this.__pointermoveCallback(e));
       window.addEventListener('click', e => this.__clickCallback(e));
     }
@@ -230,5 +210,24 @@ export class PlaneController {
         obj.material.color.copy(this.color);
       }
     })
+  }
+
+  createJoystick() {
+    document.getElementById('controls').style.display = 'block';
+    this.joystick = nipplejs.create({ zone: document.getElementById("left") });
+    this.joystickVector = new THREE.Vector3();
+    this.joystickForce = 0;
+
+    this.joystick.on('move', (_, e) => this.__joystickCallback(e));
+
+    let shootBtn = document.getElementById('shoot');
+    shootBtn.addEventListener('pointerdown', e => this.__clickCallback(e));
+
+    let speedBtns = document.getElementsByClassName('velocityChange');
+    for (let btn of speedBtns) {
+      btn.addEventListener('pointerdown', e => {
+        changeSpeed(btn.attributes.getNamedItem('data-speed').value)
+      });
+    }
   }
 }

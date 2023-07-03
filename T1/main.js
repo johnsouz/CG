@@ -87,7 +87,9 @@ startEvent.addEventListener('pointerdown', ev => {
   if (!CONFIG.loadedAssets) {
     return;
   }
-  
+  if (CONFIG.isMobile)
+    planeController.createJoystick();
+
   startEvent.style.display = 'none';
   CONFIG.simulationOn = true;
   audio.play();
