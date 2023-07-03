@@ -63,7 +63,8 @@
         height: 100%;
       }
       .wrapper {
-        display: grid;
+        display: flex;
+        flex-direction: column;
         position: absolute;
         bottom: 1em;
         right: 1em;
@@ -72,14 +73,14 @@
       }
       .ball {
         display: block;
-        width: 50px;
-        height: 50px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         background-color: hsla(0, 0%, 100%, 0.5);
         bottom: 1em;
         right: 1em;
         text-align: center;
-        line-height: 50px;
+        line-height: 45px;
       }
       .ball p, .btn {
         color: black;
@@ -105,24 +106,28 @@
   <div id="webgl-output">     
     <script src="../libs/other/nipplejs.js"></script>
     <script type="module" src="main.js"></script>
-  </div>
 
-  <pre id="coords" class="info debugInfo"></pre>
+    <pre id="coords" class="info debugInfo"></pre>
 
-  <div id="controls" style="display: none;">
-    <div id="left"></div>
-    <div id="right">
-      <div class="wrapper">
-        <div class="ball velocityChange" data-speed="1"><p>1</p></div>
-        <div class="ball velocityChange" data-speed="2"><p>2</p></div>
-        <div class="ball velocityChange" data-speed="3"><p>3</p></div>
-        <hr>
-        <div class="ball" id="shoot"><p>X</p></div>
+    <div id="controls" style="display: none;">
+      <div id="left"></div>
+      <div id="right">
+        <div class="wrapper">
+          <div class="ball" id="fullscreen" onclick="document.getElementById('webgl-output').requestFullscreen()"><p>F</p></div>
+          <div class="ball" id="mute"><p>M</p></div>
+          <hr>
+          <div class="ball velocityChange" data-speed="1"><p>1</p></div>
+          <div class="ball velocityChange" data-speed="2"><p>2</p></div>
+          <div class="ball velocityChange" data-speed="3"><p>3</p></div>
+          <hr>
+          <div class="ball" id="shoot"><p>X</p></div>
+        </div>
       </div>
     </div>
+
+    <pre class="info tutorial"> [ESC] Pause | [D] Debug | [S] Turn On/Off Sound</pre>
   </div>
 
-  <pre class="info tutorial"> [ESC] Pause | [D] Debug | [S] Turn On/Off Sound</pre>
 </body>
 
 </html>

@@ -87,7 +87,7 @@ startEvent.addEventListener('pointerdown', ev => {
   if (!CONFIG.loadedAssets) {
     return;
   }
-
+  
   startEvent.style.display = 'none';
   CONFIG.simulationOn = true;
   audio.play();
