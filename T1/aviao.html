@@ -5,6 +5,7 @@
 
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../html/resources/default.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">  
     <style>
       * {
@@ -65,6 +66,7 @@
       .wrapper {
         display: flex;
         flex-direction: column;
+        align-items: flex-end;
         position: absolute;
         bottom: 1em;
         right: 1em;
@@ -75,18 +77,23 @@
         display: block;
         width: 40px;
         height: 40px;
-        border-radius: 50%;
+        border-radius: 10px;
         background-color: hsla(0, 0%, 100%, 0.5);
         bottom: 1em;
         right: 1em;
         text-align: center;
-        line-height: 45px;
+        line-height: 40px;
       }
       .ball p, .btn {
         color: black;
         font-family: 'Consolas', monospace;
         font-weight: bolder;
         font-size: x-large;
+      }
+      #shoot {
+        width: 60px;
+        height: 60px;
+        line-height: 60px;
       }
     </style>
   </head>
@@ -113,19 +120,17 @@
       <div id="left"></div>
       <div id="right">
         <div class="wrapper">
-          <div class="ball" id="fullscreen" onclick="document.getElementById('webgl-output').requestFullscreen()"><p>F</p></div>
-          <div class="ball" id="mute"><p>M</p></div>
+          <div class="ball" id="fullscreen" onclick="document.getElementById('webgl-output').requestFullscreen()"><i class="fa-solid fa-maximize"></i></div>
+          <div class="ball" id="mute"><i class="fa-solid fa-volume-xmark"></i></div>
           <hr>
-          <div class="ball velocityChange" data-speed="1"><p>1</p></div>
-          <div class="ball velocityChange" data-speed="2"><p>2</p></div>
-          <div class="ball velocityChange" data-speed="3"><p>3</p></div>
+          <div class="ball velocityChange" data-speed="3"><i class="fa-solid fa-arrow-trend-up"></i></div>
+          <div class="ball velocityChange" data-speed="2"><i class="fa-solid fa-arrow-right-long"></i></div>
+          <div class="ball velocityChange" data-speed="1"><i class="fa-solid fa-arrow-trend-down"></i></div>
           <hr>
-          <div class="ball" id="shoot"><p>X</p></div>
+          <div class="ball" id="shoot"><i class="fa-solid fa-crosshairs"></i></div>
         </div>
       </div>
     </div>
-
-    <pre class="info tutorial"> [ESC] Pause | [D] Debug | [S] Turn On/Off Sound</pre>
   </div>
 
 </body>

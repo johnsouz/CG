@@ -82,7 +82,7 @@ window.addEventListener('debug', _ => {
 
 let audio = document.getElementById('background-music');
 let startEvent = document.getElementById('startGame')
-startEvent.addEventListener('pointerdown', ev => {
+startEvent.addEventListener('pointerup', ev => {
   ev.stopPropagation();
   if (!CONFIG.loadedAssets) {
     return;
