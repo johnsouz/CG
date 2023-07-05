@@ -196,12 +196,12 @@ function render() {
       let turretBB = box.setFromObject(turret)
       for (let [bulletKey, bullet] of Object.entries(World.playerBullets)) {
         if (turretBB.containsPoint(bullet.position)) {
-          if (AudioResources.boom) {
-            new THREE.Audio(AudioResources.listener).setBuffer(AudioResources.boom).play()
-          }        
+ 
           scene.remove(World.playerBullets[bulletKey]);
           delete World.playerBullets[bulletKey];
-
+          if (AudioResources.boom) {
+            new THREE.Audio(AudioResources.listener).setBuffer(AudioResources.boom).play()
+          }       
           turret.userData['dead'] = true;
         }
       }
