@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { props } from "./assets.js";
 import { CONFIG } from "./config.js";
-import { textureMetal2 } from "./assets.js";
+import { textureMetal2, turretModel } from "./assets.js";
 import { Translater, opacityFog } from "./Translater.js";
 
 export const World = {
@@ -90,4 +90,25 @@ export function createWorld() {
     World.translaters.push(holderT);
     World.scene.add(holder);
   }
+
+  // Criação das torretas
+  for (let i = 0; i < CONFIG.turretCount; ++i) {
+    let turret = turretModel.clone();
+    turret.material = turretModel.material.clone();
+
+    World.turrets[turret.uuid] = turret;
+
+    turret.position.x = THREE.MathUtils.randFloatSpread(CONFIG.turretDistribution);
+    turret.position.y = CONFIG.turretVerticalOffset;
+    turret.position.z = -300 * i;
+
+    turret.userData['lastShot'] = Date.now();
+
+    let translater = new Translater(Z, turret, 1400, opacityFog)
+    translater.startPoint.z = -1200;
+
+    World.translaters.push(translater);
+  }
+
+  World.scene.add(...World.translaters.map(a => a.object));
 }

@@ -36,10 +36,20 @@ export let props = [
     )
 ];
 
-export let turretModel = new THREE.Mesh(
-    new THREE.BoxGeometry(10, 20, 10),
-    new THREE.MeshStandardMaterial({color: 'white', transparent: true}));
+// export let turretModel = new THREE.Mesh(
+//     new THREE.BoxGeometry(10, 20, 10),
+//     new THREE.MeshStandardMaterial({color: 'white', transparent: true}));
 
+export let turretModel = new THREE.Object3D();
+
+gltfLoader.load('./models/turret.glb', glb => {
+    glb.scene.traverse(obj => {
+        if (obj.isMesh) {
+            turretModel = obj;
+            turretModel.material.transparent = true;
+        }
+    });
+});
 
 let models = [
     './models/plane.glb',

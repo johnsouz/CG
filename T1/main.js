@@ -122,31 +122,7 @@ window.addEventListener('keydown', ev => {
 
 
 let translaters = World.translaters;
-const Z = new THREE.Vector3(0, 0, 1);
 
-/** @type {Object.<string, THREE.Object3D>} */
-let turrets = World.turrets;
-
-// Criação das torretas
-for (let i = 0; i < CONFIG.turretCount; ++i) {
-  let turret = turretModel.clone();
-  turret.material = turretModel.material.clone();
-
-  turrets[turret.uuid] = turret;
-
-  turret.position.x = MathUtils.randFloatSpread(CONFIG.turretDistribution);
-  turret.position.y = CONFIG.turretVerticalOffset;
-  turret.position.z = -300 * i;
-
-  turret.userData['lastShot'] = Date.now();
-
-  let translater = new Translater(Z, turret, 1400, opacityFog)
-  translater.startPoint.z = -1200;
-
-  translaters.push(translater);
-}
-
-scene.add(...translaters.map(a => a.object));
 
 let box = new THREE.Box3();
 function render() {
@@ -183,7 +159,7 @@ function render() {
     }
     
     //#region lógica das colisões projétil-torretas
-    for (let turret of Object.values(turrets)) {
+    for (let turret of Object.values(World.turrets)) {
       //#region se a torreta estivar marcada como 'morta', acontece a animação
       if (turret.userData['dead']) {
 
@@ -202,6 +178,7 @@ function render() {
       //#region torreta capaz de atirar
       if (turret.position.z < -200 && turret.position.z > -800 && (Date.now() - turret.userData['lastShot'] > 3000)) {
         let bullet = createBullet(turret.position);
+        bullet.position.y += 20;
         bullet.lookAt(planeController.object.position);
         
         scene.add(bullet);
