@@ -205,10 +205,13 @@ function render() {
         bullet.lookAt(planeController.object.position);
         
         scene.add(bullet);
+
         turret.userData['lastShot'] = Date.now();
         
         World.enemyBullets[bullet.uuid] = bullet;
-      }
+              if (AudioResources.turretBlaster) {
+          new THREE.Audio(AudioResources.listener).setBuffer(AudioResources.turretBlaster).play()
+        }}
       //#endregion
       
       //#region checa todos os projéteis se estão dentro de alguma torreta
