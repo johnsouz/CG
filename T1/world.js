@@ -36,7 +36,9 @@ export const AudioResources = {
 let audioMap = [
   'The last battle.mp3', 'background',
   'X-wing blaster.mp3', 'blaster',
-  'turretShoot.mp3', 'turretBlaster'
+  'turretShoot.mp3', 'turretBlaster',
+  'damage.mp3', 'hit',
+  
 ]
 let aloader = new THREE.AudioLoader()
 for (let i = 0; i < audioMap.length; i += 2) {
