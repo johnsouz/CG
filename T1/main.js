@@ -202,7 +202,9 @@ function render() {
 
           turret.userData['dead'] = true;
           if (AudioResources.boom) {
-            new THREE.Audio(AudioResources.listener).setBuffer(AudioResources.boom).play()
+            let boom = new THREE.Audio(AudioResources.listener).setBuffer(AudioResources.boom)
+            boom.setVolume(0.4);
+            boom.play();
           }                 
         }
       }
