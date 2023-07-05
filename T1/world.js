@@ -38,7 +38,8 @@ let audioMap = [
   'X-wing blaster.mp3', 'blaster',
   'turretShoot.mp3', 'turretBlaster',
   'damage.mp3', 'hit',
-  
+  'explosion.mp3', 'boom',
+
 ]
 let aloader = new THREE.AudioLoader()
 for (let i = 0; i < audioMap.length; i += 2) {
@@ -47,9 +48,13 @@ for (let i = 0; i < audioMap.length; i += 2) {
 
   aloader.load(filename, buffer => {
     AudioResources[propriety] = buffer;
+    if (property === 'boom') {
+      let boomAudio = new THREE.Audio(AudioResources.listener);
+      boomAudio.setBuffer(buffer);
+      boomAudio.setVolume(1); // Define o volume desejado (varia de 0 a 1)
+    }
   })
 }
-
 
 const Z = new THREE.Vector3(0, 0, 1);
 export function createWorld() {
