@@ -29,13 +29,15 @@ export const AudioResources = {
   blaster: undefined,
   /** @type {AudioBuffer} */
   background: undefined,
+  /** @type {AudioBuffer} */
+  turretBlaster: undefined,
 };
 
 let audioMap = [
   'The last battle.mp3', 'background',
-  'X-wing blaster.mp3', 'blaster'
+  'X-wing blaster.mp3', 'blaster',
+  'turretShoot.mp3', 'turretBlaster'
 ]
-
 let aloader = new THREE.AudioLoader()
 for (let i = 0; i < audioMap.length; i += 2) {
   let filename = audioMap[i];
