@@ -1,108 +1,123 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-      <title>Avião</title>
+  <title>Avião</title>
+  <link rel="shortcut icon" href="../favicon.ico">
+  <link rel="stylesheet" href="../html/resources/default.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      border: 0;
+      vertical-align: baseline;
+    }
 
-    <link rel="shortcut icon" href="../favicon.ico">
-    <link rel="stylesheet" href="../html/resources/default.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1">  
-    <style>
-      * {
-        padding: 0;
-        margin: 0;
-        border: 0;
-        vertical-align: baseline;
-      }
-      .overlay {
-        background-color: white;
-        display: flex;
-        width: 100%;
-        height: 100%;
-        cursor: pointer;
-        align-items: center;
-        justify-content: center;
+    .overlay {
+      background-color: white;
+      display: flex;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
 
-      }
-      .overlay .btn {
-        display: inline-block;
-        text-align: center;
-        padding: 1em;
-        font-family: monospace;
-        border-radius: 10px;
-        background-color: gray;
-      }
-      .info {
-        font-size: x-large;
-        color: white;
-        position: absolute;
-        font-family: 'consolas';
-        transition: opacity 200ms;
-        user-select: none;
-      }
-      .debugInfo {
-        left: 0.5em;
-        top: 0.5em;
-      }
-      .tutorial {
-        right: 0.5em;
-        top: 0.5em;
-      }
+    }
 
-      #left {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 50%;
-        height: 100%;
-      }
-      #right {
-        position: absolute;
-        top: 0;
-        left: 50%;
-        width: 50%;
-        height: 100%;
-      }
-      .wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        position: absolute;
-        bottom: 1em;
-        right: 1em;
-        grid-row-gap: 1em;
-        user-select: none;
-      }
-      .ball {
-        display: block;
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        background-color: hsla(0, 0%, 100%, 0.5);
-        bottom: 1em;
-        right: 1em;
-        text-align: center;
-        line-height: 40px;
-      }
-      .ball p, .btn {
-        color: black;
-        font-family: 'Consolas', monospace;
-        font-weight: bolder;
-        font-size: x-large;
-      }
-      #shoot {
-        width: 60px;
-        height: 60px;
-        line-height: 60px;
-      }
-    </style>
-  </head>
+    .overlay .btn {
+      display: inline-block;
+      text-align: center;
+      padding: 1em;
+      font-family: monospace;
+      border-radius: 10px;
+      background-color: gray;
+    }
+
+    .info {
+      font-size: x-large;
+      color: white;
+      position: absolute;
+      font-family: 'consolas';
+      transition: opacity 200ms;
+      user-select: none;
+    }
+
+    .debugInfo {
+      left: 0.5em;
+      top: 0.5em;
+    }
+
+    .tutorial {
+      right: 0.5em;
+      top: 0.5em;
+    }
+
+    #left {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+    }
+
+    #right {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 50%;
+      height: 100%;
+    }
+
+    .wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      position: absolute;
+      bottom: 1em;
+      right: 1em;
+      gap: 1em;
+      user-select: none;
+      margin-bottom: calc(60px + 1em);
+      flex-wrap: wrap-reverse;
+      max-height: calc(100vh - 60px);
+    }
+
+    .ball {
+      display: block;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background-color: hsla(0, 0%, 100%, 0.5);
+      bottom: 1em;
+      right: 1em;
+      text-align: center;
+      line-height: 40px;
+    }
+
+    .ball p,
+    .btn {
+      color: black;
+      font-family: 'Consolas', monospace;
+      font-weight: bolder;
+      font-size: x-large;
+    }
+
+    #shoot {
+      width: 60px;
+      height: 60px;
+      line-height: 60px;
+      position: absolute;
+    }
+  </style>
+</head>
 
 <body>
   <!-- Import maps polyfill -- Remove this when import maps will be widely supported-->
   <audio id="background-music" src="The last battle.mp3" loop></audio>
-  <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>  
-  <script type="importmap"> 
+  <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+  <script type="importmap">
     {"imports": {"three": "../build/three.module.js"}} 
   </script>
 
@@ -110,7 +125,7 @@
     <div class="btn">Carregando</div>
   </div>
 
-  <div id="webgl-output">     
+  <div id="webgl-output">
     <script src="../libs/other/nipplejs.js"></script>
     <script type="module" src="main.js"></script>
 
@@ -122,13 +137,11 @@
         <div class="wrapper">
           <div class="ball" id="fullscreen" onclick="document.getElementById('webgl-output').requestFullscreen()"><i class="fa-solid fa-maximize"></i></div>
           <div class="ball" id="mute"><i class="fa-solid fa-volume-xmark"></i></div>
-          <hr>
           <div class="ball velocityChange" data-speed="3"><i class="fa-solid fa-arrow-trend-up"></i></div>
           <div class="ball velocityChange" data-speed="2"><i class="fa-solid fa-arrow-right-long"></i></div>
           <div class="ball velocityChange" data-speed="1"><i class="fa-solid fa-arrow-trend-down"></i></div>
-          <hr>
-          <div class="ball" id="shoot"><i class="fa-solid fa-crosshairs"></i></div>
         </div>
+        <div class="ball" id="shoot"><i class="fa-solid fa-crosshairs"></i></div>
       </div>
     </div>
   </div>
