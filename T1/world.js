@@ -46,14 +46,7 @@ for (let i = 0; i < audioMap.length; i += 2) {
   let filename = audioMap[i];
   let propriety = audioMap[i+1];
 
-  aloader.load(filename, buffer => {
-    AudioResources[propriety] = buffer;
-    if (property === 'boom') {
-      let boomAudio = new THREE.Audio(AudioResources.listener);
-      boomAudio.setBuffer(buffer);
-      boomAudio.setVolume(1); // Define o volume desejado (varia de 0 a 1)
-    }
-  })
+  aloader.load(filename, buffer => AudioResources[propriety] = buffer);
 }
 
 const Z = new THREE.Vector3(0, 0, 1);
