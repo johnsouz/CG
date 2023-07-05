@@ -8,15 +8,16 @@ import {
 
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 
-import { CONFIG, TexLoader, changeSpeed } from './utils.js';
+import { changeSpeed } from './utils.js';
 import { importTurret, createBullet } from './meshGenerators.js';
 import { Translater, opacityFog } from './Translater.js';
 import { PlaneController } from './PlaneController.js';
-import { metal2 } from './textures.js';
 import { AudioResources, World } from './world.js';
+import { CONFIG } from './config.js';
 
 // Create main scene
 let scene = new THREE.Scene();
+World.scene = scene;
 
 // Init a basic renderer
 var renderer = new THREE.WebGLRenderer({ antialias: !CONFIG.isMobile });
@@ -47,7 +48,7 @@ let shadowMapHelper = new THREE.CameraHelper(light.shadow.camera)
 shadowMapHelper.visible = CONFIG.debug;
 scene.add(light, ambient, light.target, shadowMapHelper);
 
-TexLoader.load('./textures/sky.jpg', texture => {
+new THREE.TextureLoader().load('./textures/sky.jpg', texture => {
   let pmremGenerator = new THREE.PMREMGenerator(renderer);
   pmremGenerator.compileEquirectangularShader();
 
@@ -119,44 +120,8 @@ window.addEventListener('keydown', ev => {
 })
 
 
-/** Coleção dos objetos que se movem (planos e árvores)
- * @type {Translater[]} */
-let translaters = []
+let translaters = World.translaters;
 const Z = new THREE.Vector3(0, 0, 1);
-
-let planeGeometry = new THREE.PlaneGeometry(CONFIG.planeWidth, CONFIG.planeHeight);
-for (let i = 0; i < CONFIG.planeCount; ++i) {
-  // 0 __          __ 6
-  //   1 |__ __ __| 5
-  //      2  3  4
-  let holder = new THREE.Object3D();
-
-  let offsets = [
-    [[-2.0, 1.0], [-Math.PI/2, 0,          0]],
-    [[-1.5, 0.5], [-Math.PI/2, Math.PI/2,  0]],
-    [[-1.0, 0.0], [-Math.PI/2, 0,          0]],
-    [[0, 0],      [-Math.PI/2, 0,          0]],
-    [[1.0, 0.0],  [-Math.PI/2, 0,          0]],
-    [[1.5, 0.5],  [-Math.PI/2, -Math.PI/2, 0]],
-    [[2.0, 1.0],  [-Math.PI/2, 0,          0]],
-  ]
-
-  for (let [[dx, dy], [x, y, z]] of offsets) {
-    let mesh = new THREE.Mesh(planeGeometry, metal2.clone())
-    mesh.receiveShadow = true;
-    mesh.position.set(dx*CONFIG.planeWidth, dy*CONFIG.planeWidth + CONFIG.planeVerticalOffset);
-    mesh.rotation.set(x,y,z);
-    
-    holder.add(mesh)
-  }
-
-  holder.position.z = i * CONFIG.planeHeight;
-  let holderT = new Translater(Z, holder, 1400, opacityFog);
-  holderT.startPoint.z = -1200;
-  
-  translaters.push(holderT);
-}
-
 
 /** @type {Object.<string, THREE.Object3D>} */
 let turrets = World.turrets;

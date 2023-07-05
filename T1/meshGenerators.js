@@ -1,8 +1,7 @@
 import * as THREE from 'three';
-import { createGroundPlane, createGroundPlaneWired, setDefaultMaterial } from '../libs/util/util.js';
+import { createGroundPlane, setDefaultMaterial } from '../libs/util/util.js';
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
-import { TexLoader } from './utils.js';
-import { metal2 } from './textures.js';
+import { textureMetal2 } from './assets.js';
 
 export function createAirplane() {
     const geometry = new THREE.CylinderGeometry(2, 1.2, 25, 32);
@@ -134,7 +133,7 @@ export function createTree() {
  * @returns {THREE.Mesh}
  */
 export function createGround(width, height, yOffset) {
-    let texture = TexLoader.load('death star.jpg');
+    let texture = new THREE.TextureLoader().load('death star.jpg');
 
     // Configuração do repeat wrapping
     texture.wrapS = THREE.RepeatWrapping;
@@ -145,7 +144,7 @@ export function createGround(width, height, yOffset) {
     let mesh = createGroundPlane(width, height, 1, 1, 0);
     mesh.rotation.x = -Math.PI/2;
     // mesh.material = new THREE.MeshStandardMaterial({ map: texture });
-    mesh.material = metal2.clone();
+    mesh.material = textureMetal2.clone();
     mesh.material.transparent = true;
     mesh.receiveShadow = true;
 

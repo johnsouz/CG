@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import { MathUtils } from 'three';
-import { CONFIG, changeSpeed } from './utils.js';
+import { changeSpeed } from './utils.js';
 import { createBullet, importAirplane, importTargets } from './meshGenerators.js';
 import { createGroundPlane } from '../libs/util/util.js';
 import { AudioResources, World } from './world.js';
+import { CONFIG } from './config.js';
 
 export class PlaneController {
 

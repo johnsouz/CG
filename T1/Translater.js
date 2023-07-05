@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { MathUtils } from 'three';
-import { CONFIG } from './utils.js';
+import { CONFIG } from './config.js';
 
 export class Translater {
   /**
