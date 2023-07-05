@@ -5,6 +5,7 @@ export const CONFIG = {
     simulationOn: false,
     debug: false,
     loadedAssets: false,
+    muted: false,
   
     cameraPos: new Vector3(0, 0, 50),
     cameraFov: 45,

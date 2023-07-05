@@ -1,10 +1,10 @@
-import { MeshStandardMaterial, TextureLoader, Mesh, PlaneGeometry } from "three"
+import * as THREE from "three"
 import { GLTFLoader } from '../build/jsm/loaders/GLTFLoader.js';
 import { CONFIG } from "./config.js";
 let gltfLoader = new GLTFLoader();
 
-let texloader = new TextureLoader();
-export let textureMetal1 = new MeshStandardMaterial({
+let texloader = new THREE.TextureLoader();
+export let textureMetal1 = new THREE.MeshStandardMaterial({
     map: texloader.load('textures/metal1/red-scifi-metal_albedo.png'),
     aoMap: texloader.load('textures/metal1/red-scifi-metal_ao.png'),
     metalnessMap: texloader.load('textures/metal1/red-scifi-metal_metallic.png'),
@@ -16,7 +16,7 @@ export let textureMetal1 = new MeshStandardMaterial({
     transparent: true,
 })
 
-export let textureMetal2 = new MeshStandardMaterial({
+export let textureMetal2 = new THREE.MeshStandardMaterial({
     map: texloader.load('textures/metal2/sci-fi-panel1-albedo.png'),
     aoMap: texloader.load('textures/metal2/sci-fi-panel1-ao.png'),
     metalnessMap: texloader.load('textures/metal2/sci-fi-panel1-metallic.png'),
@@ -30,12 +30,21 @@ export let textureMetal2 = new MeshStandardMaterial({
 
 /** @param {THREE.Mesh[]} props */
 export let props = [
-    new Mesh(
-        new PlaneGeometry(CONFIG.planeWidth, CONFIG.planeHeight),
+    new THREE.Mesh(
+        new THREE.PlaneGeometry(CONFIG.planeWidth, CONFIG.planeHeight),
         textureMetal2.clone()
     )
 ];
 
-gltfLoader.load('./models/plane.glb', glb => {
-    props.push(glb.scene.children[0])
-});
+export let turretModel = new THREE.Mesh(
+    new THREE.BoxGeometry(10, 20, 10),
+    new THREE.MeshStandardMaterial({color: 'white', transparent: true}));
+
+
+let models = [
+    './models/plane.glb',
+    './models/plane2.glb'
+];
+models.forEach(path =>
+    gltfLoader.load(path, glb => { props.push(glb.scene.children[0]) })
+)

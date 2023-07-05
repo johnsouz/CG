@@ -196,31 +196,6 @@ export function importTargets(scene) {
     return object;
 }
 
-// TODO importar modelo da torreta
-export function importTurret(scene) {
-    return new THREE.Mesh(
-        new THREE.BoxGeometry(10, 20, 10),
-        new THREE.MeshStandardMaterial({color: 'white', transparent: true}));
-    // let holder = new THREE.Object3D();
-    // scene.add(holder);
-
-    // const loader = new GLTFLoader();
-    // loader.load('./airplane/turret_double.glb', loaded => {
-    //     /** @type {THREE.Group} */
-    //     const obj = loaded.scene;
-    //     obj.scale.setScalar(30);
-    //     holder.add(obj);
-    //     holder.traverse(o => {
-    //         if (o.isMesh)
-    //             o.material.transparent = true;
-    //         o.castShadow = true;
-    //         o.receiveShadow = true;
-    //     });
-    // });
-
-    // return holder
-}
-
 const bulletGeometry = new THREE.SphereGeometry(1);
 const bulletMaterial = new THREE.MeshBasicMaterial({ color: 'rebeccapurple' });
 export function createBullet(initialPos) {

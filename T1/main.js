@@ -9,11 +9,12 @@ import {
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js';
 
 import { changeSpeed } from './utils.js';
-import { importTurret, createBullet } from './meshGenerators.js';
+import { createBullet } from './meshGenerators.js';
 import { Translater, opacityFog } from './Translater.js';
 import { PlaneController } from './PlaneController.js';
 import { AudioResources, World } from './world.js';
 import { CONFIG } from './config.js';
+import { turretModel } from './assets.js';
 
 // Create main scene
 let scene = new THREE.Scene();
@@ -128,7 +129,9 @@ let turrets = World.turrets;
 
 // Criação das torretas
 for (let i = 0; i < CONFIG.turretCount; ++i) {
-  let turret = importTurret(scene);
+  let turret = turretModel.clone();
+  turret.material = turretModel.material.clone();
+
   turrets[turret.uuid] = turret;
 
   turret.position.x = MathUtils.randFloatSpread(CONFIG.turretDistribution);
@@ -154,7 +157,8 @@ function render() {
   if (CONFIG.simulationOn) {
     // planos, cubos e arvores
     translaters.forEach(obj => obj.update(dt));
-    audio.volume = 0.4;
+
+    audio.volume = CONFIG.muted ? 0 : 0.4;
     
     // avião
     planeController.update(dt)

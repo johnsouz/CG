@@ -230,5 +230,10 @@ export class PlaneController {
         changeSpeed(btn.attributes.getNamedItem('data-speed').value)
       });
     }
+
+    let muteBtn = document.getElementById('mute');
+    muteBtn.addEventListener('pointerdown', e => {
+      CONFIG.muted = !CONFIG.muted;
+    })
   }
 }
