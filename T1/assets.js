@@ -4,17 +4,6 @@ import { CONFIG } from "./config.js";
 let gltfLoader = new GLTFLoader();
 
 let texloader = new THREE.TextureLoader();
-export let textureMetal1 = new THREE.MeshStandardMaterial({
-    map: texloader.load('textures/metal1/red-scifi-metal_albedo.png'),
-    aoMap: texloader.load('textures/metal1/red-scifi-metal_ao.png'),
-    metalnessMap: texloader.load('textures/metal1/red-scifi-metal_metallic.png'),
-    roughnessMap: texloader.load('textures/metal1/red-scifi-metal_roughness.png'),
-    normalMap: texloader.load('textures/metal1/red-scifi-metal_normal-ogl.png'),
-
-    metalness: 0.5,
-    roughness: 0.8,
-    transparent: true,
-})
 
 export let textureMetal2 = new THREE.MeshStandardMaterial({
     map: texloader.load('textures/metal2/sci-fi-panel1-albedo.png'),
