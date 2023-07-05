@@ -196,6 +196,9 @@ function render() {
       let turretBB = box.setFromObject(turret)
       for (let [bulletKey, bullet] of Object.entries(World.playerBullets)) {
         if (turretBB.containsPoint(bullet.position)) {
+          if (AudioResources.boom) {
+            new THREE.Audio(AudioResources.listener).setBuffer(AudioResources.boom).play()
+          }        
           scene.remove(World.playerBullets[bulletKey]);
           delete World.playerBullets[bulletKey];
 
@@ -207,6 +210,9 @@ function render() {
       let planeBB = box.setFromObject(planeController.object).expandByScalar(2);
       for (let [bulletKey, bullet] of Object.entries(World.enemyBullets)) {
         if (planeBB.containsPoint(bullet.position)) {
+           if (AudioResources.hit) {
+            new THREE.Audio(AudioResources.listener).setBuffer(AudioResources.hit).play()
+          }     
           scene.remove(World.enemyBullets[bulletKey])
           delete World.enemyBullets[bulletKey];
           
