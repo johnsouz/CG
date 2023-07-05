@@ -199,10 +199,11 @@ function render() {
  
           scene.remove(World.playerBullets[bulletKey]);
           delete World.playerBullets[bulletKey];
+
+          turret.userData['dead'] = true;
           if (AudioResources.boom) {
             new THREE.Audio(AudioResources.listener).setBuffer(AudioResources.boom).play()
-          }       
-          turret.userData['dead'] = true;
+          }                 
         }
       }
       
